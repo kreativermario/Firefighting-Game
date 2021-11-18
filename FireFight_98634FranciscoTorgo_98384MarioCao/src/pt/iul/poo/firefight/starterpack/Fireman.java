@@ -7,96 +7,31 @@ import pt.iul.ista.poo.utils.Point2D;
 // Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 // Isso sera' de evitar na versao a serio do projeto
 
-public class Fireman extends GameElement{
+public class Fireman extends GameElement implements Movable{
 
-	public Fireman(Point2D position) {
-		super(position);
-	}
-	
-	// Move numa direcao aleatoria 
-	public void move() {
-		
-		boolean hasMoved = false;
-		
-		while (hasMoved == false)  {
-		
-			Direction randDir = Direction.random();
-			Point2D newPosition = super.getPosition().plus(randDir.asVector());
-			
-			if (canMoveTo(newPosition) ) {
-				setPosition(newPosition);
-				hasMoved = true;
-			}
-		}
-	}
-	
-	// Move para a esquerda
-	public void moveLeft() {
-		
-		boolean hasMoved = false;
-		
-		while (hasMoved == false)  {
-		
-			Direction leftDir = Direction.LEFT;
-			Point2D newPosition = super.getPosition().plus(leftDir.asVector());
-			
-			if (canMoveTo(newPosition) ) {
-				setPosition(newPosition);
-				hasMoved = true;
-			}
-		}
-	}
-	
-	// Move para cima
-	public void moveUp() {
-		
-		boolean hasMoved = false;
-		
-		while (hasMoved == false)  {
-		
-			Direction upDir = Direction.UP;
-			Point2D newPosition = this.getPosition().plus(upDir.asVector());
-			
-			if (canMoveTo(newPosition) ) {
-				setPosition(newPosition);
-				hasMoved = true;
-			}
-		}
-	}
-	
-	// Move para baixo
-	public void moveDown() {
-		
-		boolean hasMoved = false;
-		
-		while (hasMoved == false)  {
-		
-			Direction downDir = Direction.DOWN;
-			Point2D newPosition = super.getPosition().plus(downDir.asVector());
-			
-			if (canMoveTo(newPosition) ) {
-				setPosition(newPosition);
-				hasMoved = true;
-			}
-		}
+	public Fireman(String name, Point2D position, int layerValue) {
+		super(name, position, layerValue);
 	}
 	
 	
-	// Move à direita
-	public void moveRight() {
-		
+	// public boolean isViableToMove(Point2D newPosition){
+	// 	if (canMoveTo(newPosition) ) {
+	// 			setPosition(newPosition);
+	// 			return true;
+	// 	}
+	// }
+	
+	// Move numa direcao
+	public void move(int keyCode) {
 		boolean hasMoved = false;
-		
-		while (hasMoved == false)  {
-		
-			Direction rightDir = Direction.RIGHT;
-			Point2D newPosition = super.getPosition().plus(rightDir.asVector());
-			
-			if (canMoveTo(newPosition) ) {
-				setPosition(newPosition);
-				hasMoved = true;
-			}
+		Direction direction = Direction.directionFor(keyCode);
+		Point2D newPosition = super.getPosition().plus(direction.asVector());
+		if(canMoveTo(newPosition) && hasMoved == false) {
+			setPosition(newPosition);
+			hasMoved = true;
 		}
+
+	
 	}
 
 	// Verifica se a posicao p esta' dentro da grelha de jogo
@@ -112,15 +47,10 @@ public class Fireman extends GameElement{
 	public void setPosition(Point2D position) {
 		 super.setPosition(position);
 	}
-
-	// Metodos de ImageTile
-	@Override
-	public String getName() {
-		return "fireman";
-	}
 	
+	//TODO Debug
 	@Override
-	public int getLayer() {
-		return 3;
+	public String toString() {
+		return "Fireman";	
 	}
 }

@@ -9,8 +9,8 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Bulldozer extends GameElement{
 
-	public Bulldozer(Point2D position) {
-		super(position);
+	public Bulldozer(String name, Point2D position, int layerValue) {
+		super(name, position, layerValue);
 	}
 	
 	// // Move numa direcao aleatoria 
@@ -113,15 +113,10 @@ public class Bulldozer extends GameElement{
 	public void setPosition(Point2D position) {
 		 super.setPosition(position);
 	}
-
-	// Metodos de ImageTile
-	@Override
-	public String getName() {
-		return "bulldozer";
-	}
 	
+	//TODO Debug
 	@Override
-	public int getLayer() {
-		return 3;
+	public String toString() {
+		return "Bulldozer";	
 	}
 }

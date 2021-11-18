@@ -8,8 +8,8 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Fire extends GameElement {
 
-	public Fire(Point2D position) {
-		super(position);
+	public Fire(String name, Point2D position, int layerValue) {
+		super(name, position, layerValue);
 	}
 	
 	@Override
@@ -20,5 +20,11 @@ public class Fire extends GameElement {
 	@Override
 	public int getLayer() {
 		return 1;
+	}
+	
+	//TODO Debug
+	@Override
+	public String toString() {
+		return "Fire";	
 	}
 }

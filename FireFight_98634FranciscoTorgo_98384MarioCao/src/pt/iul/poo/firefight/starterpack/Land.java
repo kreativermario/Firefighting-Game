@@ -8,17 +8,13 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Land extends GameElement {
 
-	public Land(Point2D position) {
-		super(position);
+	public Land( String name, Point2D position, int layerValue) {
+		super(name, position, layerValue);
 	}
 	
+	//TODO Debug
 	@Override
-	public String getName() {
-		return "land";
-	}
-
-	@Override
-	public int getLayer() {
-		return 0;
+	public String toString() {
+		return "Land";	
 	}
 }

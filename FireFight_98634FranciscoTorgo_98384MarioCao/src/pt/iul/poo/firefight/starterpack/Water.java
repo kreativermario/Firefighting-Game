@@ -8,17 +8,11 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Water extends GameElement {
 
-	public Water(Point2D position) {
-		super(position);
-	}
+	public Water(String name, Point2D position, int layerValue) {
+		super(name, position, layerValue);
+	}	
 	
-	@Override
-	public String getName() {
-		return "fire";
-	}
-
-	@Override
-	public int getLayer() {
-		return 1;
-	}
+	//TODO Debug
+	public String toString() {
+		return "Water";	}
 }

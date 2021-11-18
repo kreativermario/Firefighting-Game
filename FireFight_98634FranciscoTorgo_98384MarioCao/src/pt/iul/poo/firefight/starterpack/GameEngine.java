@@ -9,6 +9,7 @@ import pt.iul.ista.poo.gui.ImageMatrixGUI;
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.observer.Observed;
 import pt.iul.ista.poo.observer.Observer;
+import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
 
 // Note que esta classe e' um exemplo - nao pretende ser o inicio do projeto, 
@@ -58,16 +59,7 @@ public class GameEngine implements Observer {
 			return new GameEngine();
 		return INSTANCE;
 	}
-	
-	
-	//TODO Método para "apagar fogo"
-	private void cleanFire(Point2D position) {
-		if(isTherePineAtPosition(position)) {
-			Fire fire = new Fire(new Point2D(position.getX(), position.getY()));
-			addElement(fire);
-		}
-	}
-	
+		
 	
 	// O metodo update() e' invocado sempre que o utilizador carrega numa tecla
 	// no argumento do metodo e' passada um referencia para o objeto observado (neste caso seria a GUI)
@@ -76,124 +68,307 @@ public class GameEngine implements Observer {
 
 		int key = gui.keyPressed();              // obtem o codigo da tecla pressionada
 		
-		if (key == KeyEvent.VK_ENTER) {            // se a tecla for ENTER, manda o bombeiro mover
-			fireman.move();			
-			Point2D position = fireman.getPosition();
-			// Verificar se tem pinheiro na posicao
-				// Queimar (burn)
-				// Aficionar um objeto tipo Fire no jogo (tileList) e no gui (addImage)
-			if(isTherePineAtPosition(position)) {
-				Fire fire = new Fire(new Point2D(position.getX(), position.getY()));
-				addElement(fire);
-			}
-				
+//		if (key == KeyEvent.VK_ENTER) {            // se a tecla for ENTER, manda o bombeiro mover
+//			fireman.move();			
+//			Point2D position = fireman.getPosition();
+//			// Verificar se tem pinheiro na posicao
+//				// Queimar (burn)
+//				// Aficionar um objeto tipo Fire no jogo (tileList) e no gui (addImage)
+//			if(isItBurnableAtPosition(position)) {
+//				Fire fire = new Fire(new Point2D(position.getX(), position.getY()));
+//				addElement(fire);
+//			}
+//				
+//		}
+		Direction direction = Direction.directionFor(key);
+		Point2D newPosition = fireman.getPosition().plus(direction.asVector());
+		if(!isThereFireAtPosition(newPosition) ) {
+			fireman.move(key);
+			removeWater();
+		}else {
+			cleanFire(newPosition);	
 		}
-		
-		if (key == KeyEvent.VK_UP)
-			fireman.moveUp();
-		if (key == KeyEvent.VK_DOWN)
-			fireman.moveDown();
-		if (key == KeyEvent.VK_LEFT)
-			fireman.moveLeft();
-		if (key == KeyEvent.VK_RIGHT)
-			fireman.moveRight();
 			
-		
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
 	
+	public void propagateFire() {
+		
+		for(int i = 0; i < tileList.size(); i++) {
+			ImageTile element = tileList.get(i);
+			Point2D position = element.getPosition();
+			
+			
+			if(isThereFireAtPosition(position)) {
+				Direction UP = Direction.UP;
+				Direction DOWN = Direction.DOWN;
+				Direction LEFT = Direction.LEFT;
+				Direction RIGHT = Direction.RIGHT;
+				
+				
+				Point2D upPos = position.plus(UP.asVector());
+				Point2D downPos = position.plus(DOWN.asVector());
+				Point2D leftPos = position.plus(LEFT.asVector());
+				Point2D rightPos = position.plus(RIGHT.asVector());
+				
+				if(isItBurnableAtPosition(upPos)) {
+					
+					
+				}
+				
+				if(isItBurnableAtPosition(downPos)){
+					
+					
+				}
+				
+				if(isItBurnableAtPosition(leftPos)){
+				
+					
+				}
+				
+				if(isItBurnableAtPosition(rightPos)){
+				
+					
+				}
+				
+				
+				
+				
+				
+				if(isItBurnableAtPosition(upPos) || isItBurnableAtPosition(downPos)
+				|| isItBurnableAtPosition(leftPos) || isItBurnableAtPosition(rightPos)) {
+					
+					
+				}
+				
+				
+				
+				
+				
+				
+			}
+		}
+		
+		
+		
+	}
 	
-	// isTherePineAtPosition
-	public boolean isTherePineAtPosition(Point2D position) {
+	
+	
+	
+	
+	
+	public void cleanFire(Point2D position) {
+		
+		if(isItBurnableAtPosition(position) && isThereFireAtPosition(position)) {
+			Water water = new Water("water", new Point2D(position.getX(), position.getY() ), 2);
+			addElement(water);
+			for(int i = 0; i < tileList.size(); i++) {
+				ImageTile image = tileList.get(i);
+				if(image.getPosition().equals(position) && image instanceof Fire) {
+					removeElement(image);
+				}
+			}
+		}
+		
+		
+	}
+	
+	public void removeWater() {
+		for(int i = 0; i < tileList.size(); i++) {
+			ImageTile image = tileList.get(i);
+			if(image instanceof Water) {
+				removeElement(image);
+			}
+		}
+	}
+	
+	
+	// isThereFireAtPosition
+	public boolean isThereFireAtPosition(Point2D position) {
 		for(ImageTile element : tileList) {
-			if(element.getPosition().equals(position) && element instanceof Pine)
+			if(element.getPosition().equals(position) && element instanceof Fire)
 				return true;
 		}
 		return false;
 	}
 	
 	
+	
+	// isItBurnableAtPosition
+	private boolean isItBurnableAtPosition(Point2D position) {
+		for(ImageTile element : tileList) {
+			if(element.getPosition().equals(position) && element instanceof Burnable)
+				return true;
+		}
+		return false;
+	}
+	
+	private boolean isThereElement(ImageTile image) {
+		for(ImageTile element : tileList) {
+			if(element.getClass() == image.getClass())
+				return true;
+		}
+		return false;
+	}
+	
+	
+	
 	// Adiciona elemento ao jogo
 	public void addElement(ImageTile element) {
-		tileList.add(element);
-		gui.addImage(element);
+
+		if(!isThereElement(element)) {
+			tileList.add(element);
+			gui.addImage(element);
+		}
+		
+		
 	}
+	
+	// Remove elemento ao jogo
+	public void removeElement(ImageTile element) {
+		tileList.remove(element);
+		gui.removeImage(element);
+	}
+
 
 	
 	// Criacao dos objetos e envio das imagens para GUI
 	public void start() {
 		createTerrain();      // criar mapa do terreno
-		createMoreStuff();    // criar mais objetos (bombeiro, fogo,...)
+		//TODO Debug
+		for(int i = 0; i < tileList.size(); i++) {
+			if(i % 10 == 0)
+				System.out.println();
+			System.out.print(tileList.get(i) + " ") ;
+			
+		}
 		sendImagesToGUI();    // enviar as imagens para a GUI
+		//TODO DEBUG
+		gui.setStatusMessage("Fireman v.1.0.0 Alkaline");
+		gui.update();
+		
 	}
-
 	
-	//TODO carregar mapa pelo ficheiro
-	// Criacao do terreno - so' pinheiros neste exemplo 
+	
+	/** Função auxiliar a createTerrain()
+	 * 	Verifica se o elemento é uma das opções e
+	 * 	adiciona ao mapa a carregar na GUI
+	 * 	@param element char
+	 * 	@param position Point2D
+	 * */
+	private void addFromChar(char element, Point2D position) {
+		
+		switch(element) {
+			case 'p':
+				tileList.add(new Pine("pine",position, 0));
+				break;
+			case 'e':
+				tileList.add(new Eucaliptus("eucaliptus", position, 0));
+				break;
+			case 'm':
+				tileList.add(new Grass("grass", position, 0));
+				break;
+			case '_':
+				tileList.add(new Land("land", position, 0));
+				break;
+			default:
+				throw new IllegalArgumentException("Erro a dar load ao mapa");
+		}
+						
+	}
+	
+	
+	/** Função auxiliar a createTerrain()
+	 * 	Verifica se o elemento é uma das opções e
+	 * 	adiciona ao mapa a carregar na GUI
+	 * 	@param element String
+	 * 	@param position Point2D
+	 * */
+	private void addFromString(String element, Point2D position) {
+		
+		switch(element) {
+			case "Fireman":
+				fireman = new Fireman("fireman", position, 3);
+				tileList.add(fireman);
+				break;
+			case "Bulldozer":
+				tileList.add(new Bulldozer("bulldozer", position, 3));
+				break;
+			case "Fire":
+				tileList.add(new Fire("fire", position, 1));
+				break;
+			case "Burnt":
+				tileList.add(new Burnt("burnt", position, 0));
+				break;
+			case "BurntEucaliptus":
+				tileList.add(new BurntEucaliptus("burnteucaliptus", position, 0));
+				break;
+			case "BurntGrass":
+				tileList.add(new BurntGrass("burntgrass", position, 0));
+				break;
+			case "BurntPine":
+				tileList.add(new BurntPine("burntpine", position, 0));
+				break;
+			case "Eucaliptus":
+				tileList.add(new Eucaliptus("eucaliptus", position, 0));
+				break;
+			case "Grass":
+				tileList.add(new Grass("grass", position, 0));
+				break;
+			case "Land":
+				tileList.add(new Land("land", position, 0));
+				break;
+			case "Pine":
+				tileList.add(new Pine("pine", position, 0));
+				break;
+			case "Water":
+				tileList.add(new Water("water", position, 2));
+				break;
+			default:
+				throw new IllegalArgumentException("Erro a dar load ao mapa");
+		}
+	
+	}
+	
+	
+	
 	private void createTerrain() {
 		try {
 			File fileName = new File("levels/example.txt");
 			Scanner sc = new Scanner(fileName);
 			int y = 0;
 			while(sc.hasNextLine()) {
-				if(y >=11){
-					String [] line = sc.nextLine().split(" ");
+				if(y >= 10) {
+					String [] line = sc.nextLine().split(" ");	
 					int xMove = Integer.parseInt(line[1]);
 					int yMove = Integer.parseInt(line[2]);
-					switch(line[0]) {
-						case "Fireman":
-							tileList.add(new Fireman(new Point2D(xMove,yMove)));
-						case "Bulldozer":
-							tileList.add(new Bulldozer(new Point2D(xMove,yMove)));
-						case "Fire":
-							tileList.add(new Fire(new Point2D(xMove, yMove)));
-					}
+					Point2D position = new Point2D(xMove,yMove);
+					String element = line[0];
+					System.out.println("Y -> " + y + " " + element + " " + xMove + " " + yMove); 		
+					addFromString(element, position);
 					
 				}else {
 					String line = sc.nextLine();
+					System.out.println("Y -> " + y + " " + line); 								//TODO desnecessário, debug only
 					for(int x = 0; x < line.length(); x++) {
 						char element = line.charAt(x);
-						
-						if(element == 'p')
-							tileList.add(new Pine(new Point2D(x, y)));
-						if(element == 'e')
-							tileList.add(new Eucaliptus(new Point2D(x,y)));
-						if(element == 'm')
-							tileList.add(new Grass(new Point2D(x,y)));
-						if(element == '_')
-							tileList.add(new Land(new Point2D(x,y)));
-						
+						Point2D position = new Point2D(x,y);
+						addFromChar(element, position);
 					}
 					y++;
+					
 				}
-			
+				
+				
 			}
 			sc.close();
-			
-			
 		} catch (FileNotFoundException e) {
-			System.err.println("File snot found");
+			System.err.println("File not found");
 		}
 		
-//		for (int y=0; y<GRID_WIDTH; y++)
-//			for (int x=0; x<GRID_HEIGHT; x++)
-//				if(x % 2 == 0)
-//					tileList.add(new Pine(new Point2D(x,y)));
-//				else
-//					tileList.add(new Land(new Point2D(x,y)));
+		
 	}
-	
-	
-	//TODO criar os objetos do fim do ficheiro
-	// Criacao de mais objetos - neste exemplo e' um bombeiro e dois fogos
-		private void createMoreStuff() {
-			fireman = new Fireman( new Point2D(5,5));
-			tileList.add(fireman);
-			
-			tileList.add(new Fire(new Point2D(3,3)));
-			tileList.add(new Fire(new Point2D(3,2)));
-			
-		}
 	
 		
 	// Envio das mensagens para a GUI - note que isto so' precisa de ser feito no inicio
