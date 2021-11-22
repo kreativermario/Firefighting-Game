@@ -80,26 +80,94 @@ public class GameEngine implements Observer {
 //			}
 //				
 //		}
-		Direction direction = Direction.directionFor(key);
-		Point2D newPosition = fireman.getPosition().plus(direction.asVector());
-		if(!isThereFireAtPosition(newPosition) ) {
-			fireman.move(key);
-			removeWater();
-		}else {
-			cleanFire(newPosition);	
-		}
+		
+		if(Direction.isDirection(key)) {
+			//TODO mudar isto para dentro do fireman
+			Direction direction = Direction.directionFor(key);
+			Point2D newPosition = fireman.getPosition().plus(direction.asVector());
+			if(!isThereFireAtPosition(newPosition) ) {
+				fireman.move(key);
+				propagateFire();
+				removeWater();
+			}else {
+				cleanFire(newPosition, direction);	
+			}
+				
 			
+			
+		}
+		
+		
+		//TODO debug
+		System.out.println();
+		for(int i = 0; i < tileList.size(); i++) {
+			if(i % 10 == 0)
+				System.out.println();
+			System.out.print(tileList.get(i) + " ") ;
+			
+		}
+		
+		
+		
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
+	
+	
+	
+	public ImageTile getElement(Point2D position) {
+		for(int i = 0; i < tileList.size(); i++) {		
+			ImageTile element = tileList.get(i);
+			if(element.getPosition().equals(position)) {
+				return element;
+			}
+		}
+		return null;
+	}
+	
+	
+	private void addFire(String type, Point2D position) {
+		double chance = Math.random() * 100;
+		System.out.println("PROPAGATE FIRE CHANCE IS  -->" + chance );
+		switch(type) {
+			case "eucaliptus":
+				if(chance <= 10) {
+					System.out.println("ADDING FIRE EUCALIPTUS --> " + position);
+					addElement(new Fire("fire", position, 1));
+				}
+				break;
+			case "pine":
+				if(chance <= 5) {
+					System.out.println("ADDING FIRE PINE --> " + position );
+					addElement(new Fire("fire", position, 1));
+				}
+				break;
+			case "grass":
+				if(chance <= 15) {
+					System.out.println("ADDING FIRE GRASS --> " + position );
+					addElement(new Fire("fire", position, 1));
+				}
+				break;
+		}
+		
+		
+		
+		
+		
+	}
+	
+	
+	
 	
 	public void propagateFire() {
 		
 		for(int i = 0; i < tileList.size(); i++) {
 			ImageTile element = tileList.get(i);
 			Point2D position = element.getPosition();
-			
+		
 			
 			if(isThereFireAtPosition(position)) {
+				System.out.println();
+				System.out.println("I --> " + i + " | FIRE AT --> " + position);
 				Direction UP = Direction.UP;
 				Direction DOWN = Direction.DOWN;
 				Direction LEFT = Direction.LEFT;
@@ -111,40 +179,34 @@ public class GameEngine implements Observer {
 				Point2D leftPos = position.plus(LEFT.asVector());
 				Point2D rightPos = position.plus(RIGHT.asVector());
 				
+				//if(Math.random() * 100 == 15)
+				
 				if(isItBurnableAtPosition(upPos)) {
-					
+					System.out.println("I --> " + i + " | IS BURNABLE AT --> " + upPos);
+					String type = getElement(upPos).getName();
+					System.out.println("I --> " + i + " | TYPE BURNABLE IS --> " + type);
+					addFire(type, upPos);
 					
 				}
 				
 				if(isItBurnableAtPosition(downPos)){
-					
+					String type = getElement(downPos).getName();
+					addFire(type, downPos);
 					
 				}
 				
 				if(isItBurnableAtPosition(leftPos)){
-				
+					String type = getElement(leftPos).getName();
+					addFire(type, leftPos);
 					
 				}
 				
 				if(isItBurnableAtPosition(rightPos)){
-				
+					String type = getElement(rightPos).getName();
+					addFire(type, rightPos);
 					
 				}
-				
-				
-				
-				
-				
-				if(isItBurnableAtPosition(upPos) || isItBurnableAtPosition(downPos)
-				|| isItBurnableAtPosition(leftPos) || isItBurnableAtPosition(rightPos)) {
-					
-					
-				}
-				
-				
-				
-				
-				
+						
 				
 			}
 		}
@@ -154,15 +216,27 @@ public class GameEngine implements Observer {
 	}
 	
 	
+	//TODO isFireAtPosition ou isWater
+	//TODO metodos devolver lista de objetos com determinado interface
 	
 	
-	
-	
-	public void cleanFire(Point2D position) {
+	public void cleanFire(Point2D position, Direction direction) {
 		
 		if(isItBurnableAtPosition(position) && isThereFireAtPosition(position)) {
-			Water water = new Water("water", new Point2D(position.getX(), position.getY() ), 2);
-			addElement(water);
+			switch(direction) {
+				case UP:
+					addElement(new Water("water_up", position, 2));
+					break;
+				case DOWN:
+					addElement(new Water("water_down", position, 2));
+					break;
+				case LEFT:
+					addElement(new Water("water_left", position, 2));
+					break;
+				case RIGHT:
+					addElement(new Water("water_right", position, 2));
+					break;
+			}
 			for(int i = 0; i < tileList.size(); i++) {
 				ImageTile image = tileList.get(i);
 				if(image.getPosition().equals(position) && image instanceof Fire) {
@@ -247,7 +321,6 @@ public class GameEngine implements Observer {
 		//TODO DEBUG
 		gui.setStatusMessage("Fireman v.1.0.0 Alkaline");
 		gui.update();
-		
 	}
 	
 	
