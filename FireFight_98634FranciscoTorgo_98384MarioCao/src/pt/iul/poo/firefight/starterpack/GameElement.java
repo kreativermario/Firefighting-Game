@@ -31,5 +31,19 @@ public abstract class GameElement implements ImageTile {
 	public void setPosition(Point2D position) {
 		this.position = position;		
 	}
+	
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;	
+		if(this.getClass() != obj.getClass())
+			return false;
+
+		GameElement other = (GameElement) obj;
+		return this.getName().equals(other.getName()) && this.getPosition().equals(obj);
+	}
 
 }

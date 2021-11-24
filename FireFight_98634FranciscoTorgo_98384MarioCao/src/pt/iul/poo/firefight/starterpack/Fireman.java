@@ -23,16 +23,16 @@ public class Fireman extends GameElement implements Movable{
 	
 	// Move numa direcao
 	public void move(int keyCode) {
-		boolean hasMoved = false;
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
-		if(canMoveTo(newPosition) && hasMoved == false) {
+		if(canMoveTo(newPosition)) {
 			setPosition(newPosition);
-			hasMoved = true;
 		}
 
 	
 	}
+	
+	
 
 	// Verifica se a posicao p esta' dentro da grelha de jogo
 	public boolean canMoveTo(Point2D p) {
@@ -47,6 +47,7 @@ public class Fireman extends GameElement implements Movable{
 	public void setPosition(Point2D position) {
 		 super.setPosition(position);
 	}
+	
 	
 	//TODO Debug
 	@Override

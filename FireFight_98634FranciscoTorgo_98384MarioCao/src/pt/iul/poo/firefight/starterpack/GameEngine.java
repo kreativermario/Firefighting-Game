@@ -38,6 +38,7 @@ public class GameEngine implements Observer {
 	private List<ImageTile> tileList;	// Lista de imagens
 	private Fireman fireman;			// Referencia para o bombeiro
 	private static GameEngine INSTANCE;
+	private List<ImageTile> fireList;
 
 
 	// Neste exemplo o setup inicial da janela que faz a interface com o utilizador e' feito no construtor 
@@ -50,6 +51,7 @@ public class GameEngine implements Observer {
 		gui.go();                              // 4. lancar a GUI
 		
 		tileList = new ArrayList<>();   
+		fireList = new ArrayList<>();
 	}
 	
 	
@@ -59,7 +61,7 @@ public class GameEngine implements Observer {
 			return new GameEngine();
 		return INSTANCE;
 	}
-		
+	
 	
 	// O metodo update() e' invocado sempre que o utilizador carrega numa tecla
 	// no argumento do metodo e' passada um referencia para o objeto observado (neste caso seria a GUI)
@@ -80,21 +82,18 @@ public class GameEngine implements Observer {
 //			}
 //				
 //		}
-		
+		removeWater();
 		if(Direction.isDirection(key)) {
 			//TODO mudar isto para dentro do fireman
 			Direction direction = Direction.directionFor(key);
 			Point2D newPosition = fireman.getPosition().plus(direction.asVector());
-			if(!isThereFireAtPosition(newPosition) ) {
+			if(isThereFireAtPosition(newPosition) ) {
+				cleanFire(newPosition, direction);	
+			}else {
 				fireman.move(key);
 				propagateFire();
-				removeWater();
-			}else {
-				cleanFire(newPosition, direction);	
 			}
-				
-			
-			
+			addFiresToList();
 		}
 		
 		
@@ -106,15 +105,36 @@ public class GameEngine implements Observer {
 			System.out.print(tileList.get(i) + " ") ;
 			
 		}
-		
-		
-		
+		System.out.println();
+		System.out.println("FireList count --> " + fireList.size());
+		System.out.println();
+		for(int i = 0; i < fireList.size(); i++) {
+			System.out.print(fireList.get(i).getPosition() + " ") ;
+			
+		}
+		boolean existsDup = false;
+		for (int i = 0; i < fireList.size(); i++) { 
+			for (int j = i + 1 ; j < fireList.size(); j++) { 
+				if (fireList.get(i).getPosition().equals(fireList.get(j).getPosition())) { 
+					existsDup = true;
+					
+				}
+			}
+		}
+		System.out.println();
+		System.out.println("DUPE --> " + existsDup);
+		System.out.println();
+		gui.setStatusMessage("Fire Count: " + fireList.size());
+		if(fireList.size() == 0) {
+			gui.setMessage("Game Over!");
+		}
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
 	
 	
 	
 	public ImageTile getElement(Point2D position) {
+		
 		for(int i = 0; i < tileList.size(); i++) {		
 			ImageTile element = tileList.get(i);
 			if(element.getPosition().equals(position)) {
@@ -126,7 +146,8 @@ public class GameEngine implements Observer {
 	
 	
 	private void addFire(String type, Point2D position) {
-		double chance = Math.random() * 100;
+		Random r = new Random();
+	    int chance = r.nextInt(100);
 		System.out.println("PROPAGATE FIRE CHANCE IS  -->" + chance );
 		switch(type) {
 			case "eucaliptus":
@@ -136,7 +157,7 @@ public class GameEngine implements Observer {
 				}
 				break;
 			case "pine":
-				if(chance <= 5) {
+				if(chance <= 6) {
 					System.out.println("ADDING FIRE PINE --> " + position );
 					addElement(new Fire("fire", position, 1));
 				}
@@ -153,15 +174,21 @@ public class GameEngine implements Observer {
 		
 		
 		
+	}	
+	
+	private void addFiresToList() {
+		for(ImageTile element : tileList) {
+			if(element instanceof Fire &&  !fireList.contains(element)) {
+					fireList.add(element);
+			}
+		}
 	}
-	
-	
 	
 	
 	public void propagateFire() {
 		
-		for(int i = 0; i < tileList.size(); i++) {
-			ImageTile element = tileList.get(i);
+		for(int i = 0; i < fireList.size(); i++) {
+			ImageTile element = fireList.get(i);
 			Point2D position = element.getPosition();
 		
 			
@@ -179,29 +206,24 @@ public class GameEngine implements Observer {
 				Point2D leftPos = position.plus(LEFT.asVector());
 				Point2D rightPos = position.plus(RIGHT.asVector());
 				
-				//if(Math.random() * 100 == 15)
-				
-				if(isItBurnableAtPosition(upPos)) {
-					System.out.println("I --> " + i + " | IS BURNABLE AT --> " + upPos);
+				if(isItBurnableAtPosition(upPos) && !isThereFireAtPosition(upPos) && !upPos.equals(fireman.getPosition()) ) {
 					String type = getElement(upPos).getName();
-					System.out.println("I --> " + i + " | TYPE BURNABLE IS --> " + type);
 					addFire(type, upPos);
-					
 				}
 				
-				if(isItBurnableAtPosition(downPos)){
+				if(isItBurnableAtPosition(downPos) && !isThereFireAtPosition(downPos) && !downPos.equals(fireman.getPosition()) ){
 					String type = getElement(downPos).getName();
 					addFire(type, downPos);
 					
 				}
 				
-				if(isItBurnableAtPosition(leftPos)){
+				if(isItBurnableAtPosition(leftPos) && !isThereFireAtPosition(leftPos) && !leftPos.equals(fireman.getPosition()) ){
 					String type = getElement(leftPos).getName();
 					addFire(type, leftPos);
 					
 				}
 				
-				if(isItBurnableAtPosition(rightPos)){
+				if(isItBurnableAtPosition(rightPos) && !isThereFireAtPosition(rightPos) && !rightPos.equals(fireman.getPosition()) ){
 					String type = getElement(rightPos).getName();
 					addFire(type, rightPos);
 					
@@ -237,12 +259,7 @@ public class GameEngine implements Observer {
 					addElement(new Water("water_right", position, 2));
 					break;
 			}
-			for(int i = 0; i < tileList.size(); i++) {
-				ImageTile image = tileList.get(i);
-				if(image.getPosition().equals(position) && image instanceof Fire) {
-					removeElement(image);
-				}
-			}
+			removeFire(position);
 		}
 		
 		
@@ -257,11 +274,21 @@ public class GameEngine implements Observer {
 		}
 	}
 	
+	public void removeFire(Point2D position) {
+		for(int i = 0; i < fireList.size(); i++) {
+			ImageTile fire = fireList.get(i);
+			if(fire.getPosition().equals(position)) {
+				removeElement(fire);
+				fireList.remove(i);
+			}
+		}
+	
+	}
 	
 	// isThereFireAtPosition
 	public boolean isThereFireAtPosition(Point2D position) {
-		for(ImageTile element : tileList) {
-			if(element.getPosition().equals(position) && element instanceof Fire)
+		for(ImageTile element : fireList) {
+			if(element.getPosition().equals(position))
 				return true;
 		}
 		return false;
@@ -280,7 +307,7 @@ public class GameEngine implements Observer {
 	
 	private boolean isThereElement(ImageTile image) {
 		for(ImageTile element : tileList) {
-			if(element.getClass() == image.getClass())
+			if(element.getPosition().equals(image.getPosition()) && element.getName().equals(image.getName()) && element.getLayer() == element.getLayer())
 				return true;
 		}
 		return false;
@@ -290,19 +317,17 @@ public class GameEngine implements Observer {
 	
 	// Adiciona elemento ao jogo
 	public void addElement(ImageTile element) {
-
 		if(!isThereElement(element)) {
 			tileList.add(element);
 			gui.addImage(element);
 		}
-		
-		
 	}
 	
 	// Remove elemento ao jogo
 	public void removeElement(ImageTile element) {
 		tileList.remove(element);
 		gui.removeImage(element);
+		gui.update();
 	}
 
 
@@ -315,12 +340,13 @@ public class GameEngine implements Observer {
 			if(i % 10 == 0)
 				System.out.println();
 			System.out.print(tileList.get(i) + " ") ;
-			
 		}
 		sendImagesToGUI();    // enviar as imagens para a GUI
 		//TODO DEBUG
 		gui.setStatusMessage("Fireman v.1.0.0 Alkaline");
 		gui.update();
+		addFiresToList();
+		
 	}
 	
 	
@@ -331,23 +357,25 @@ public class GameEngine implements Observer {
 	 * 	@param position Point2D
 	 * */
 	private void addFromChar(char element, Point2D position) {
-		
+		GameElement obj = null;
 		switch(element) {
 			case 'p':
-				tileList.add(new Pine("pine",position, 0));
+				obj  = new Pine("pine",position, 0);
 				break;
 			case 'e':
-				tileList.add(new Eucaliptus("eucaliptus", position, 0));
+				obj = new Eucaliptus("eucaliptus", position, 0);
 				break;
 			case 'm':
-				tileList.add(new Grass("grass", position, 0));
+				obj = new Grass("grass", position, 0);
 				break;
 			case '_':
-				tileList.add(new Land("land", position, 0));
+				obj = new Land("land", position, 0);
 				break;
 			default:
 				throw new IllegalArgumentException("Erro a dar load ao mapa");
 		}
+		if(obj != null && !tileList.contains(obj))
+			tileList.add(obj);
 						
 	}
 	
@@ -359,53 +387,58 @@ public class GameEngine implements Observer {
 	 * 	@param position Point2D
 	 * */
 	private void addFromString(String element, Point2D position) {
-		
+		GameElement obj = null;
 		switch(element) {
 			case "Fireman":
 				fireman = new Fireman("fireman", position, 3);
-				tileList.add(fireman);
+				obj = fireman;
 				break;
 			case "Bulldozer":
-				tileList.add(new Bulldozer("bulldozer", position, 3));
+				obj = new Bulldozer("bulldozer", position, 3);
 				break;
 			case "Fire":
-				tileList.add(new Fire("fire", position, 1));
+				obj = new Fire("fire", position, 1);
 				break;
 			case "Burnt":
-				tileList.add(new Burnt("burnt", position, 0));
+				obj = new Burnt("burnt", position, 0);
 				break;
 			case "BurntEucaliptus":
-				tileList.add(new BurntEucaliptus("burnteucaliptus", position, 0));
+				obj = new BurntEucaliptus("burnteucaliptus", position, 0);
 				break;
 			case "BurntGrass":
-				tileList.add(new BurntGrass("burntgrass", position, 0));
+				obj = new BurntGrass("burntgrass", position, 0);
 				break;
 			case "BurntPine":
-				tileList.add(new BurntPine("burntpine", position, 0));
+				obj = new BurntPine("burntpine", position, 0);
 				break;
 			case "Eucaliptus":
-				tileList.add(new Eucaliptus("eucaliptus", position, 0));
+				obj = new Eucaliptus("eucaliptus", position, 0);
 				break;
 			case "Grass":
-				tileList.add(new Grass("grass", position, 0));
+				obj = new Grass("grass", position, 0);
 				break;
 			case "Land":
-				tileList.add(new Land("land", position, 0));
+				obj = new Land("land", position, 0);
 				break;
 			case "Pine":
-				tileList.add(new Pine("pine", position, 0));
+				obj = new Pine("pine", position, 0);
 				break;
 			case "Water":
-				tileList.add(new Water("water", position, 2));
+				obj = new Water("water", position, 2);
 				break;
 			default:
 				throw new IllegalArgumentException("Erro a dar load ao mapa");
 		}
-	
+		if(obj != null && !tileList.contains(obj))
+			tileList.add(obj);
+		
 	}
 	
 	
-	
+	/** 
+	 * 	Dá load de um mapa que é ficheiro txt
+	 * 	para o tileList (Vetor) e GUI.
+	 * */
 	private void createTerrain() {
 		try {
 			File fileName = new File("levels/example.txt");
