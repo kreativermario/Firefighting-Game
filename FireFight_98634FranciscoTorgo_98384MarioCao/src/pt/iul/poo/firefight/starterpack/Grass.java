@@ -9,6 +9,7 @@ import pt.iul.ista.poo.utils.Point2D;
 public class Grass extends GameElement implements Burnable{
 	
 	public final double probability = 0.15;
+	public final int burnTime = 3;
 	
 	public Grass( String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
@@ -23,6 +24,11 @@ public class Grass extends GameElement implements Burnable{
 	@Override
 	public double getProbability() {
 		return probability;
+	}
+
+	@Override
+	public int burnTime() {
+		return burnTime;
 	}
 	
 	

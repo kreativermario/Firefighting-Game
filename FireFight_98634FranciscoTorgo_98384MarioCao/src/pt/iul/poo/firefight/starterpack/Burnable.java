@@ -14,4 +14,5 @@ public interface Burnable {
 	public String getName();
 	public int getLayer();
 	public double getProbability();
+	public int burnTime();
 }

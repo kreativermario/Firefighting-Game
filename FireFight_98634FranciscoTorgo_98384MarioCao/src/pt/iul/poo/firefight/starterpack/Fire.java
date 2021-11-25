@@ -1,7 +1,13 @@
 package pt.iul.poo.firefight.starterpack;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
@@ -42,8 +48,7 @@ public class Fire extends GameElement {
 			ImageTile element =  ge.getFireList().get(i);
 			Point2D position = element.getPosition();
 
-			System.out.println();
-			System.out.println("I --> " + i + " | FIRE AT --> " + position);
+
 			
 			List<Point2D> burnPos = position.getNeighbourhoodPoints();
 			Iterator<Point2D> it = burnPos.iterator();
@@ -58,11 +63,11 @@ public class Fire extends GameElement {
 				Point2D nextPos = it.next();
 				
 				if(ge.isItBurnableAtPosition(nextPos) && !ge.isThereFireAtPosition(nextPos) && !nextPos.equals(movablePos) ) {
-					System.out.println();
+
 					
 					ImageTile burnable = ge.getElement(nextPos);
 					Burnable element1 = (Burnable) burnable;
-					System.out.println(element1.getClass().getSimpleName());
+
 					addFire(element1, nextPos);
 				}
 				
@@ -73,13 +78,11 @@ public class Fire extends GameElement {
 	
 	public static void addFire(Burnable element, Point2D position) {
 	    double chance = Math.random() * 1;
-		System.out.println("PROPAGATE FIRE CHANCE IS  -->" + chance );
-		System.out.println(element.getClass().getSimpleName());
+
 		double probability = element.getProbability();
-		System.out.println(probability);
+
 		if(chance <= probability) {
 			ge.addElement(new Fire("fire", position, 1));
-			System.out.println("FIRE!!!!!");
 		}
 		
 
@@ -108,14 +111,28 @@ public class Fire extends GameElement {
 		}
 	}
 	
-//	public int getLargestFire() {
-//		int count = 0;
-//		int maxColumn = -1;
-//		for(int i = 0; i < ge.getFireList().size(); i++) {
-//			ge.getFireList().get(i).getPosition().getX();
-//		}
-//
-//	}
+	public static int getLargestFireRow() {
+
+		List<Integer> fires = new ArrayList<>();
+		for(ImageTile fire : ge.getFireList()) {
+			fires.add(fire.getPosition().getX());
+		}
+		Map<Integer, Integer> posCount = new HashMap<>();
+		for(Integer x : fires) {
+			Integer count = posCount.get(x);
+			if(count == null) {
+				count = 0;
+			}
+			count++;
+			posCount.put(x, count);
+				
+		}
+		Integer maxEntry = Collections.max(posCount.entrySet(), Map.Entry.comparingByValue()).getKey();
+		return maxEntry;
+
+	}
+	
+	
 	
 	
 	

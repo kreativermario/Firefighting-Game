@@ -9,6 +9,7 @@ import pt.iul.ista.poo.utils.Point2D;
 public class Pine extends GameElement implements Burnable {
 	
 	public final double probability = 0.05;
+	public final int burnTime = 10;
 
 	public Pine(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
@@ -23,6 +24,11 @@ public class Pine extends GameElement implements Burnable {
 	@Override
 	public double getProbability() {
 		return probability;
+	}
+
+	@Override
+	public int burnTime() {
+		return burnTime;
 	}
 	
 	

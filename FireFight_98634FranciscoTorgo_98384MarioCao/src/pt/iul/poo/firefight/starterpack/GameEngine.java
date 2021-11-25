@@ -49,8 +49,10 @@ public class GameEngine implements Observer {
 	private Fireman fireman;			// Referencia para o bombeiro
 	private boolean inBulldozer = false;
 	private Bulldozer bulldozer;
+	private Plane plane;
 	private static GameEngine INSTANCE;	//Obter a instancia atual do GameEngine
 	private List<ImageTile> fireList;	//Lista de imagem do fogo
+	
 	
 	// Neste exemplo o setup inicial da janela que faz a interface com o utilizador e' feito no construtor 
 	// Tambem poderia ser feito no main - estes passos tem sempre que ser feitos!
@@ -106,17 +108,26 @@ public class GameEngine implements Observer {
 			inBulldozer = false;
 		}
 		
+		if(key == KeyEvent.VK_P && plane == null) {
+			Point2D initPos = new Point2D(Fire.getLargestFireRow(), 9);
+			this.plane = new Plane("plane", initPos, 4);
+			addElement(plane);
+		}
+		if(!tileList.contains(plane))
+			plane = null;
+		
 		
 
 		Water.removeWater();
 		if(Direction.isDirection(key)) {
+			if(plane != null)
+				plane.move();
 			if(inBulldozer == false) {
 				fireman.move(key);
 			}else if(inBulldozer == true && bulldozer != null) {
 				bulldozer.move(key);
 			}
 			addFiresToList();
-
 		}
 		
 		
@@ -174,8 +185,9 @@ public class GameEngine implements Observer {
 
 	public ImageTile getElement(Point2D position) {
 		
-		for(int i = 0; i < tileList.size(); i++) {		
-			ImageTile element = tileList.get(i);
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile element = it.next();
 			if(element.getPosition().equals(position)) {
 				return element;
 			}
@@ -261,7 +273,11 @@ public class GameEngine implements Observer {
 	public void setInBulldozer(boolean inBulldozer) {
 		this.inBulldozer = inBulldozer;
 	}
+	
 
+	public Plane getPlane() {
+		return plane;
+	}
 
 	/**
 	* Este metodo é invocado para fogo numa determinada posicao
@@ -269,11 +285,12 @@ public class GameEngine implements Observer {
 	*/
 
 	public void removeFire(Point2D position) {
-		for(int i = 0; i < fireList.size(); i++) {
-			ImageTile fire = fireList.get(i);
+		Iterator<ImageTile> it = fireList.iterator();
+		while(it.hasNext()) {
+			ImageTile fire = it.next();
 			if(fire.getPosition().equals(position)) {
 				removeElement(fire);
-				fireList.remove(i);
+				it.remove();
 			}
 		}
 	
@@ -286,11 +303,15 @@ public class GameEngine implements Observer {
 	*/
 
 	public boolean isThereFireAtPosition(Point2D position) {
-		for(ImageTile element : fireList) {
-			if(element.getPosition().equals(position))
+		
+		Iterator<ImageTile> it = fireList.iterator();
+		while(it.hasNext()) {
+			ImageTile fire = it.next();
+			if(fire.getPosition().equals(position))
 				return true;
 		}
 		return false;
+		
 	}
 	
 	

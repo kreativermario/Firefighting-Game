@@ -1,5 +1,6 @@
 package pt.iul.poo.firefight.starterpack;
 
+import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
 
@@ -7,7 +8,7 @@ import pt.iul.ista.poo.utils.Point2D;
 // Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 // Isso sera' de evitar na versao a serio do projeto
 
-public class Plane extends GameElement implements Movable{
+public class Plane extends GameElement{
 
 	public Plane(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
@@ -15,28 +16,26 @@ public class Plane extends GameElement implements Movable{
 	
 	
 	// Move numa direcao
-	public void move(int keyCode) {
-		Direction direction = Direction.directionFor(keyCode);
-		Point2D newPosition = super.getPosition().plus(direction.asVector());
-		GameEngine ge = GameEngine.getInstance();
+	public void move() {
+		Direction UP = Direction.UP;
 		
-		if(ge.isThereFireAtPosition(newPosition) ) {
-			
-			Fire.cleanFire(newPosition, direction);	
-			
-		}else if (canMoveTo(newPosition)){
-			
-			if(ge.isThereBulldozer(newPosition)) {
-				ge.removeElement(ge.getFireman());
-			}else {
+		GameEngine ge = GameEngine.getInstance();	
+		
+		for(int i = 0; i <= 2; i++) {
+			Point2D newPosition = super.getPosition().plus(UP.asVector());
+			Point2D botPosition = super.getPosition().plus(Direction.DOWN.asVector());
+			if(canMoveTo(newPosition)) {
+				Fire.cleanFire(newPosition, UP);
+				Fire.cleanFire(botPosition, UP);	
 				setPosition(newPosition);
-				Fire.propagateFire();
+			}else {
+				ge.removeElement(ge.getPlane());
 			}
 			
-			
 		}
-			
 		
+	
+	
 		
 	
 	}
