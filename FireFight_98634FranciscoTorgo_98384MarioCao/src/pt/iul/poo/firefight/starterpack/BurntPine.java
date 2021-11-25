@@ -11,7 +11,12 @@ public class BurntPine extends GameElement {
 	public BurntPine( String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 	}
-	
+
+	/**
+	* ToString do Burnt
+	* @return String com "BurntPine".
+	*/
+
 	//TODO Debug
 	@Override
 	public String toString() {

@@ -18,7 +18,11 @@ public class Eucaliptus extends GameElement implements Burnable {
 		return "eucaliptus";
 	}
 
-
+	/**
+	* ToString do Burnt
+	* @return String com "Eucaliptus".
+	*/
+	
 	//TODO Debug
 	@Override
 	public String toString() {

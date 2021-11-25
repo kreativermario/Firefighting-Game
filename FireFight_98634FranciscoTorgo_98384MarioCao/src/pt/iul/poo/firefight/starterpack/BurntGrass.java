@@ -11,7 +11,12 @@ public class BurntGrass extends GameElement {
 	public BurntGrass( String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 	}
-	
+
+	/**
+	* ToString do Burnt
+	* @return String com "BurntGrass".
+	*/
+
 	//TODO Debug
 	@Override
 	public String toString() {

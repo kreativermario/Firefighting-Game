@@ -11,6 +11,11 @@ public class BurntEucaliptus extends GameElement {
 	public BurntEucaliptus( String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 	}
+
+	/**
+	* ToString do Burnt
+	* @return String com "BurntEucaliptus".
+	*/
 	
 	//TODO Debug
 	@Override

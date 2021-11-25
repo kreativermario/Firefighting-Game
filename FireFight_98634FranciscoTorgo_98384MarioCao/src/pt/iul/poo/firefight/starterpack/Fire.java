@@ -37,21 +37,27 @@ public class Fire extends GameElement {
 	
 	public static void propagateFire() {
 		
+		
 		for(int i = 0; i < ge.getFireList().size(); i++) {
 			ImageTile element =  ge.getFireList().get(i);
 			Point2D position = element.getPosition();
-		
-			
 
 			System.out.println();
 			System.out.println("I --> " + i + " | FIRE AT --> " + position);
 			
 			List<Point2D> burnPos = position.getNeighbourhoodPoints();
-			
 			Iterator<Point2D> it = burnPos.iterator();
+			Point2D movablePos = null;
+			
+			if(!ge.isInBulldozer())
+				movablePos = ge.getFireman().getPosition();
+			else movablePos = ge.getBulldozer().getPosition();
+			
+			
 			while(it.hasNext()) {
 				Point2D nextPos = it.next();
-				if(ge.isItBurnableAtPosition(nextPos) && !ge.isThereFireAtPosition(nextPos) && !nextPos.equals(ge.getFireman().getPosition())) {
+				
+				if(ge.isItBurnableAtPosition(nextPos) && !ge.isThereFireAtPosition(nextPos) && !nextPos.equals(movablePos) ) {
 					System.out.println();
 					
 					ImageTile burnable = ge.getElement(nextPos);
@@ -101,4 +107,20 @@ public class Fire extends GameElement {
 			ge.removeFire(position);
 		}
 	}
+	
+//	public int getLargestFire() {
+//		int count = 0;
+//		int maxColumn = -1;
+//		for(int i = 0; i < ge.getFireList().size(); i++) {
+//			ge.getFireList().get(i).getPosition().getX();
+//		}
+//
+//	}
+	
+	
+	
+	
+	
+	
+	
 }

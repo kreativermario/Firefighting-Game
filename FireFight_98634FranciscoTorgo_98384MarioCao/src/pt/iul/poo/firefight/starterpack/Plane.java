@@ -7,9 +7,9 @@ import pt.iul.ista.poo.utils.Point2D;
 // Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 // Isso sera' de evitar na versao a serio do projeto
 
-public class Fireman extends GameElement implements Movable{
+public class Plane extends GameElement implements Movable{
 
-	public Fireman(String name, Point2D position, int layerValue) {
+	public Plane(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 	}
 	

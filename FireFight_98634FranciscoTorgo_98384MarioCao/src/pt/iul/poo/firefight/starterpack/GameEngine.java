@@ -29,12 +29,13 @@ import pt.iul.ista.poo.utils.Point2D;
 // Tudo o mais podera' ser diferente!
 
 /**
-*
-
-
-
-
-
+* <h1>GameEngine</h1>
+* Implementação da classe GameEngine
+* Incluio metodos principais de funcionamento do jogo
+* 
+* @author Mario Cao-N98384
+* @author Francisco Trogo-N98634
+* @since 2021-11-01
 */
 
 public class GameEngine implements Observer {
@@ -46,6 +47,8 @@ public class GameEngine implements Observer {
 	private ImageMatrixGUI gui;  		// Referencia para ImageMatrixGUI (janela de interface com o utilizador) 
 	private List<ImageTile> tileList;	// Lista de imagens
 	private Fireman fireman;			// Referencia para o bombeiro
+	private boolean inBulldozer = false;
+	private Bulldozer bulldozer;
 	private static GameEngine INSTANCE;	//Obter a instancia atual do GameEngine
 	private List<ImageTile> fireList;	//Lista de imagem do fogo
 	
@@ -62,8 +65,10 @@ public class GameEngine implements Observer {
 		fireList = new ArrayList<>();		   //Criar lista imagem fogo
 	}
 	
-	
-	//Método de fábrica Singleton
+	/**
+	* Este metodo fabrica cria um Singleton
+	*/
+
 	public static GameEngine getInstance() {
 		if(INSTANCE == null) {
 			INSTANCE = new GameEngine();
@@ -72,9 +77,11 @@ public class GameEngine implements Observer {
 		return INSTANCE;
 	}
 	
+	/**
+	* Este metodo é invocado sempre que o utilizador carrega numa tecla
+	* @param source Observed Referencia para o objeto observado (neste caso seria a GUI).
+	*/	
 	
-	// O metodo update() e' invocado sempre que o utilizador carrega numa tecla
-	// no argumento do metodo e' passada um referencia para o objeto observado (neste caso seria a GUI)
 	@Override
 	public void update(Observed source) {
 
@@ -92,11 +99,27 @@ public class GameEngine implements Observer {
 //			}
 //				
 //		}
+		
+		if(key == KeyEvent.VK_ENTER && inBulldozer) {
+			fireman = new Fireman("fireman", bulldozer.getPosition(), 3);
+			addElement(fireman);
+			inBulldozer = false;
+		}
+		
+		
+
 		Water.removeWater();
 		if(Direction.isDirection(key)) {
-			fireman.move(key);
+			if(inBulldozer == false) {
+				fireman.move(key);
+			}else if(inBulldozer == true && bulldozer != null) {
+				bulldozer.move(key);
+			}
 			addFiresToList();
+
 		}
+		
+		
 		
 		
 		//TODO debug
@@ -130,13 +153,25 @@ public class GameEngine implements Observer {
 		if(fireList.size() == 0) {
 			gui.setMessage("Game Over!");
 		}
+		System.out.println();
+		if(bulldozer != null) {
+			System.out.println("BULLDOZER EXISTS");
+		}else {
+			System.out.println("BULLDOZER DOES NOT EXIST");
+		}
+		
 		
 		
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
 	
 	
-	
+	/**
+	* Este metodo é invocado para obter um objeto numa determinada posicao
+	* @param position Point2D Valor.
+	* @return element Quando existe element return element, em contrario null.
+	*/
+
 	public ImageTile getElement(Point2D position) {
 		
 		for(int i = 0; i < tileList.size(); i++) {		
@@ -148,7 +183,29 @@ public class GameEngine implements Observer {
 		return null;
 	}
 	
+	/**
+	* Este metodo é invocado para verificar que existe um Bulldozer numa determinada posicao
+	* @param position Point2D Valor.
+	* @return boolean Quando existe true, em contrario false.
+	*/
+
+	public boolean isThereBulldozer(Point2D position) {
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile image = it.next();
+			if(image.getPosition().equals(position) && image instanceof Bulldozer)
+				return true;
+				
+		}
+		return false;
+		
+	}
 	
+	
+	/**
+	* Este metodo é invocado para adicionar objeto fogo a uma lista que guarda elementos como este
+	*/
+
 	private void addFiresToList() {
 		for(ImageTile element : tileList) {
 			if(element instanceof Fire &&  !fireList.contains(element)) {
@@ -161,21 +218,56 @@ public class GameEngine implements Observer {
 	//TODO isFireAtPosition ou isWater
 	//TODO metodos devolver lista de objetos com determinado interface
 	
-	
+
+	/**
+	* Getter do Fireman
+	* @return fireman.
+	*/
+
 	public Fireman getFireman() {
 		return fireman;
 	}
 
+	/**
+	* Getter de TileList
+	* @return tileList.
+	*/
 
 	public List<ImageTile> getTileList() {
 		return tileList;
 	}
 
+	/**
+	* Getter de FireList
+	* @return fireList.
+	*/
 
 	public List<ImageTile> getFireList() {
 		return fireList;
 	}
 	
+	public Bulldozer getBulldozer() {
+		return bulldozer;
+	}
+	
+	public void setBulldozer(ImageTile obj) {
+		this.bulldozer = (Bulldozer) obj;
+	}
+
+	public boolean isInBulldozer() {
+		return inBulldozer;
+	}
+
+	public void setInBulldozer(boolean inBulldozer) {
+		this.inBulldozer = inBulldozer;
+	}
+
+
+	/**
+	* Este metodo é invocado para fogo numa determinada posicao
+	* @param position Point2D Valor.
+	*/
+
 	public void removeFire(Point2D position) {
 		for(int i = 0; i < fireList.size(); i++) {
 			ImageTile fire = fireList.get(i);
@@ -187,7 +279,12 @@ public class GameEngine implements Observer {
 	
 	}
 	
-	// isThereFireAtPosition
+	/**
+	* Este metodo é invocado para verificar se existe fogo numa determinada posicao
+	* @param position Point2D Valor.
+	* @return boolean Quando existe true, em contrario false.
+	*/
+
 	public boolean isThereFireAtPosition(Point2D position) {
 		for(ImageTile element : fireList) {
 			if(element.getPosition().equals(position))
@@ -198,7 +295,12 @@ public class GameEngine implements Observer {
 	
 	
 	
-	// isItBurnableAtPosition
+	/**
+	* Este metodo é invocado para verificar que um objeto numa determinada posicao tem o atributo burnable como true
+	* @param position Point2D Valor.
+	* @return boolean Quando existe true, em contrario false.
+	*/
+
 	public boolean isItBurnableAtPosition(Point2D position) {
 		for(ImageTile element : tileList) {
 			if(element.getPosition().equals(position) && element instanceof Burnable)
@@ -206,6 +308,12 @@ public class GameEngine implements Observer {
 		}
 		return false;
 	}
+
+	/**
+	* Este metodo é invocado para verificar se existe um elemento numa determinada posicao
+	* @param image ImageTile Imagem do elemento a verificar.
+	* @return boolean Quando existe true, em contrario false.
+	*/
 	
 	private boolean isThereElement(ImageTile image) {
 		for(ImageTile element : tileList) {
@@ -215,7 +323,12 @@ public class GameEngine implements Observer {
 		return false;
 	}
 	
-	// Adiciona elemento ao jogo
+
+	/**
+	* Este metodo é invocado para adicionar um determinado elemento ao jogo
+	* @param element ImageTile Elemento a adicionar.
+	*/
+
 	public void addElement(ImageTile element) {
 		if(!isThereElement(element)) {
 			tileList.add(element);
@@ -223,16 +336,24 @@ public class GameEngine implements Observer {
 		}
 	}
 	
-	// Remove elemento ao jogo
+	/**
+	* Este metodo é invocado para remover um determinado elemento do jogo
+	* @param element ImageTile Elemento a remover.
+	*/
+
 	public void removeElement(ImageTile element) {
 		tileList.remove(element);
 		gui.removeImage(element);
+		if(element instanceof Fireman) {
+			inBulldozer = true;
+		}
 		gui.update();
 	}
 
+	/**
+	* Este metodo é invocado para criar objetos e enviar imagens para o GUI
+	*/
 
-	
-	// Criacao dos objetos e envio das imagens para GUI
 	public void start() {
 		createTerrain();      // criar mapa do terreno
 		//TODO Debug
@@ -294,7 +415,8 @@ public class GameEngine implements Observer {
 				obj = fireman;
 				break;
 			case "Bulldozer":
-				obj = new Bulldozer("bulldozer", position, 3);
+				bulldozer = new Bulldozer("bulldozer", position, 3);
+				obj = bulldozer;
 				break;
 			case "Fire":
 				obj = new Fire("fire", position, 1);
