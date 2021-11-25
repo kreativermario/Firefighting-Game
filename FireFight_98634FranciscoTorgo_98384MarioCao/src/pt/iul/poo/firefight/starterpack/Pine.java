@@ -7,6 +7,8 @@ import pt.iul.ista.poo.utils.Point2D;
 //Isso sera' de evitar na versao a serio do projeto
 
 public class Pine extends GameElement implements Burnable {
+	
+	public final double probability = 0.05;
 
 	public Pine(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
@@ -17,5 +19,13 @@ public class Pine extends GameElement implements Burnable {
 	public String toString() {
 		return "Pine";	
 	}
+
+	@Override
+	public double getProbability() {
+		return probability;
+	}
+	
+	
+
 
 }

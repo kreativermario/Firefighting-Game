@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.function.Predicate;
 
 import pt.iul.ista.poo.gui.ImageMatrixGUI;
 import pt.iul.ista.poo.gui.ImageTile;
@@ -39,8 +40,7 @@ public class GameEngine implements Observer {
 	private Fireman fireman;			// Referencia para o bombeiro
 	private static GameEngine INSTANCE;
 	private List<ImageTile> fireList;
-
-
+	
 	// Neste exemplo o setup inicial da janela que faz a interface com o utilizador e' feito no construtor 
 	// Tambem poderia ser feito no main - estes passos tem sempre que ser feitos!
 	private GameEngine() {
@@ -145,35 +145,16 @@ public class GameEngine implements Observer {
 	}
 	
 	
-	private void addFire(String type, Point2D position) {
-		Random r = new Random();
-	    int chance = r.nextInt(100);
+	private void addFire(Burnable element, Point2D position) {
+	    double chance = Math.random() * 1;
 		System.out.println("PROPAGATE FIRE CHANCE IS  -->" + chance );
-		switch(type) {
-			case "eucaliptus":
-				if(chance <= 10) {
-					System.out.println("ADDING FIRE EUCALIPTUS --> " + position);
-					addElement(new Fire("fire", position, 1));
-				}
-				break;
-			case "pine":
-				if(chance <= 6) {
-					System.out.println("ADDING FIRE PINE --> " + position );
-					addElement(new Fire("fire", position, 1));
-				}
-				break;
-			case "grass":
-				if(chance <= 15) {
-					System.out.println("ADDING FIRE GRASS --> " + position );
-					addElement(new Fire("fire", position, 1));
-				}
-				break;
+		System.out.println(element.getClass().getSimpleName());
+		double probability = element.getProbability();
+		System.out.println(probability);
+		if(chance <= probability) {
+			addElement(new Fire("fire", position, 1));
 		}
-		
-		
-		
-		
-		
+
 	}	
 	
 	private void addFiresToList() {
@@ -184,7 +165,7 @@ public class GameEngine implements Observer {
 		}
 	}
 	
-	
+
 	public void propagateFire() {
 		
 		for(int i = 0; i < fireList.size(); i++) {
@@ -192,50 +173,32 @@ public class GameEngine implements Observer {
 			Point2D position = element.getPosition();
 		
 			
-			if(isThereFireAtPosition(position)) {
-				System.out.println();
-				System.out.println("I --> " + i + " | FIRE AT --> " + position);
-				Direction UP = Direction.UP;
-				Direction DOWN = Direction.DOWN;
-				Direction LEFT = Direction.LEFT;
-				Direction RIGHT = Direction.RIGHT;
-				
-				
-				Point2D upPos = position.plus(UP.asVector());
-				Point2D downPos = position.plus(DOWN.asVector());
-				Point2D leftPos = position.plus(LEFT.asVector());
-				Point2D rightPos = position.plus(RIGHT.asVector());
-				
-				if(isItBurnableAtPosition(upPos) && !isThereFireAtPosition(upPos) && !upPos.equals(fireman.getPosition()) ) {
-					String type = getElement(upPos).getName();
-					addFire(type, upPos);
-				}
-				
-				if(isItBurnableAtPosition(downPos) && !isThereFireAtPosition(downPos) && !downPos.equals(fireman.getPosition()) ){
-					String type = getElement(downPos).getName();
-					addFire(type, downPos);
+
+			System.out.println();
+			System.out.println("I --> " + i + " | FIRE AT --> " + position);
+			
+			List<Point2D> burnPos = position.getNeighbourhoodPoints();
+			
+			Iterator<Point2D> it = burnPos.iterator();
+			while(it.hasNext()) {
+				Point2D nextPos = it.next();
+				if(isItBurnableAtPosition(nextPos) && !isThereFireAtPosition(nextPos) && !nextPos.equals(fireman.getPosition())) {
+					System.out.println();
 					
+					ImageTile burnable = getElement(nextPos);
+					Burnable element1 = (Burnable) burnable;
+					System.out.println(element1.getClass().getSimpleName());
+					addFire(element1, nextPos);
 				}
 				
-				if(isItBurnableAtPosition(leftPos) && !isThereFireAtPosition(leftPos) && !leftPos.equals(fireman.getPosition()) ){
-					String type = getElement(leftPos).getName();
-					addFire(type, leftPos);
-					
-				}
-				
-				if(isItBurnableAtPosition(rightPos) && !isThereFireAtPosition(rightPos) && !rightPos.equals(fireman.getPosition()) ){
-					String type = getElement(rightPos).getName();
-					addFire(type, rightPos);
-					
-				}
-						
-				
-			}
+			}		
+			
 		}
 		
 		
 		
 	}
+	
 	
 	
 	//TODO isFireAtPosition ou isWater
