@@ -28,6 +28,14 @@ import pt.iul.ista.poo.utils.Point2D;
 //
 // Tudo o mais podera' ser diferente!
 
+/**
+*
+
+
+
+
+
+*/
 
 public class GameEngine implements Observer {
 
@@ -38,8 +46,8 @@ public class GameEngine implements Observer {
 	private ImageMatrixGUI gui;  		// Referencia para ImageMatrixGUI (janela de interface com o utilizador) 
 	private List<ImageTile> tileList;	// Lista de imagens
 	private Fireman fireman;			// Referencia para o bombeiro
-	private static GameEngine INSTANCE;
-	private List<ImageTile> fireList;
+	private static GameEngine INSTANCE;	//Obter a instancia atual do GameEngine
+	private List<ImageTile> fireList;	//Lista de imagem do fogo
 	
 	// Neste exemplo o setup inicial da janela que faz a interface com o utilizador e' feito no construtor 
 	// Tambem poderia ser feito no main - estes passos tem sempre que ser feitos!
@@ -50,15 +58,17 @@ public class GameEngine implements Observer {
 		gui.registerObserver(this);            // 3. registar o objeto ativo GameEngine como observador da GUI
 		gui.go();                              // 4. lancar a GUI
 		
-		tileList = new ArrayList<>();   
-		fireList = new ArrayList<>();
+		tileList = new ArrayList<>();   	   //Criar lista imagens
+		fireList = new ArrayList<>();		   //Criar lista imagem fogo
 	}
 	
 	
 	//Método de fábrica Singleton
 	public static GameEngine getInstance() {
-		if(INSTANCE == null)
-			return new GameEngine();
+		if(INSTANCE == null) {
+			INSTANCE = new GameEngine();
+			return INSTANCE;
+		}
 		return INSTANCE;
 	}
 	
@@ -82,17 +92,9 @@ public class GameEngine implements Observer {
 //			}
 //				
 //		}
-		removeWater();
+		Water.removeWater();
 		if(Direction.isDirection(key)) {
-			//TODO mudar isto para dentro do fireman
-			Direction direction = Direction.directionFor(key);
-			Point2D newPosition = fireman.getPosition().plus(direction.asVector());
-			if(isThereFireAtPosition(newPosition) ) {
-				cleanFire(newPosition, direction);	
-			}else {
-				fireman.move(key);
-				propagateFire();
-			}
+			fireman.move(key);
 			addFiresToList();
 		}
 		
@@ -128,6 +130,8 @@ public class GameEngine implements Observer {
 		if(fireList.size() == 0) {
 			gui.setMessage("Game Over!");
 		}
+		
+		
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
 	
@@ -145,18 +149,6 @@ public class GameEngine implements Observer {
 	}
 	
 	
-	private void addFire(Burnable element, Point2D position) {
-	    double chance = Math.random() * 1;
-		System.out.println("PROPAGATE FIRE CHANCE IS  -->" + chance );
-		System.out.println(element.getClass().getSimpleName());
-		double probability = element.getProbability();
-		System.out.println(probability);
-		if(chance <= probability) {
-			addElement(new Fire("fire", position, 1));
-		}
-
-	}	
-	
 	private void addFiresToList() {
 		for(ImageTile element : tileList) {
 			if(element instanceof Fire &&  !fireList.contains(element)) {
@@ -166,75 +158,22 @@ public class GameEngine implements Observer {
 	}
 	
 
-	public void propagateFire() {
-		
-		for(int i = 0; i < fireList.size(); i++) {
-			ImageTile element = fireList.get(i);
-			Point2D position = element.getPosition();
-		
-			
-
-			System.out.println();
-			System.out.println("I --> " + i + " | FIRE AT --> " + position);
-			
-			List<Point2D> burnPos = position.getNeighbourhoodPoints();
-			
-			Iterator<Point2D> it = burnPos.iterator();
-			while(it.hasNext()) {
-				Point2D nextPos = it.next();
-				if(isItBurnableAtPosition(nextPos) && !isThereFireAtPosition(nextPos) && !nextPos.equals(fireman.getPosition())) {
-					System.out.println();
-					
-					ImageTile burnable = getElement(nextPos);
-					Burnable element1 = (Burnable) burnable;
-					System.out.println(element1.getClass().getSimpleName());
-					addFire(element1, nextPos);
-				}
-				
-			}		
-			
-		}
-		
-		
-		
-	}
-	
-	
-	
 	//TODO isFireAtPosition ou isWater
 	//TODO metodos devolver lista de objetos com determinado interface
 	
 	
-	public void cleanFire(Point2D position, Direction direction) {
-		
-		if(isItBurnableAtPosition(position) && isThereFireAtPosition(position)) {
-			switch(direction) {
-				case UP:
-					addElement(new Water("water_up", position, 2));
-					break;
-				case DOWN:
-					addElement(new Water("water_down", position, 2));
-					break;
-				case LEFT:
-					addElement(new Water("water_left", position, 2));
-					break;
-				case RIGHT:
-					addElement(new Water("water_right", position, 2));
-					break;
-			}
-			removeFire(position);
-		}
-		
-		
+	public Fireman getFireman() {
+		return fireman;
 	}
-	
-	public void removeWater() {
-		for(int i = 0; i < tileList.size(); i++) {
-			ImageTile image = tileList.get(i);
-			if(image instanceof Water) {
-				removeElement(image);
-			}
-		}
+
+
+	public List<ImageTile> getTileList() {
+		return tileList;
+	}
+
+
+	public List<ImageTile> getFireList() {
+		return fireList;
 	}
 	
 	public void removeFire(Point2D position) {
@@ -260,7 +199,7 @@ public class GameEngine implements Observer {
 	
 	
 	// isItBurnableAtPosition
-	private boolean isItBurnableAtPosition(Point2D position) {
+	public boolean isItBurnableAtPosition(Point2D position) {
 		for(ImageTile element : tileList) {
 			if(element.getPosition().equals(position) && element instanceof Burnable)
 				return true;
@@ -275,8 +214,6 @@ public class GameEngine implements Observer {
 		}
 		return false;
 	}
-	
-	
 	
 	// Adiciona elemento ao jogo
 	public void addElement(ImageTile element) {

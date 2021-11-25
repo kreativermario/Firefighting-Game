@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","u":"allclasses-index.html"},{"p":"pt.iul.poo.firefight.starterpack","l":"GameEngine"}];updateSearchResults();

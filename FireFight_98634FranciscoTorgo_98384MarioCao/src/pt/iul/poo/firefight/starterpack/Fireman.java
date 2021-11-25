@@ -25,9 +25,18 @@ public class Fireman extends GameElement implements Movable{
 	public void move(int keyCode) {
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
-		if(canMoveTo(newPosition)) {
+		GameEngine ge = GameEngine.getInstance();
+		if(ge.isThereFireAtPosition(newPosition) ) {
+			Fire.cleanFire(newPosition, direction);	
+		}else if (canMoveTo(newPosition)){
 			setPosition(newPosition);
+			Fire.propagateFire();
 		}
+		
+		
+//		if(canMoveTo(newPosition)) {
+//			setPosition(newPosition);
+//		}
 
 	
 	}
