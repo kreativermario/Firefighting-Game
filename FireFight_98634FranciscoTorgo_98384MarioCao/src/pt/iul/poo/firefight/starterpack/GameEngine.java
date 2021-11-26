@@ -102,7 +102,7 @@ public class GameEngine implements Observer {
 //				
 //		}
 		
-		
+		Water.removeWater();
 		if(!tileList.contains(plane))
 			plane = null;
 		switch(key) {
@@ -122,7 +122,7 @@ public class GameEngine implements Observer {
 				break;
 			default:
 				if(Direction.isDirection(key)) {
-					Water.removeWater();
+
 					if(plane != null) {
 						plane.move();
 					}
@@ -207,7 +207,6 @@ public class GameEngine implements Observer {
 	*/
 
 	public ImageTile getElement(Point2D position) {
-		
 		Iterator<ImageTile> it = tileList.iterator();
 		while(it.hasNext()) {
 			ImageTile element = it.next();
@@ -223,7 +222,6 @@ public class GameEngine implements Observer {
 	* @param position Point2D Valor.
 	* @return boolean Quando existe true, em contrario false.
 	*/
-
 	public boolean isThereBulldozer(Point2D position) {
 		Iterator<ImageTile> it = tileList.iterator();
 		while(it.hasNext()) {
@@ -240,7 +238,6 @@ public class GameEngine implements Observer {
 	/**
 	* Este metodo é invocado para adicionar objeto fogo a uma lista que guarda elementos como este
 	*/
-
 	private void addFiresToList() {
 		for(ImageTile element : tileList) {
 			if(element instanceof Fire &&  !fireList.contains(element)) {
