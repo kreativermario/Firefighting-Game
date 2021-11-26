@@ -57,7 +57,7 @@ public class Bulldozer extends GameElement implements Movable{
 			ge.addElement(obj);
 			demolish(newPosition);
 			setPosition(newPosition);
-			Fire.propagateFire();
+			Fire.propagateFire(newPosition);
 		}
 	
 	}

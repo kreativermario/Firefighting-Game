@@ -41,7 +41,7 @@ public class Fire extends GameElement {
 		return "Fire";	
 	}
 	
-	public static void propagateFire() {
+	public static void propagateFire(Point2D nextMovablePosition) {
 		
 		
 		for(int i = 0; i < ge.getFireList().size(); i++) {
@@ -60,15 +60,16 @@ public class Fire extends GameElement {
 			
 			
 			while(it.hasNext()) {
-				Point2D nextPos = it.next();
+				Point2D setPos = it.next();
 				
-				if(ge.isItBurnableAtPosition(nextPos) && !ge.isThereFireAtPosition(nextPos) && !nextPos.equals(movablePos) ) {
+				if(ge.isItBurnableAtPosition(setPos) && !ge.isThereFireAtPosition(setPos) 
+						&& !setPos.equals(movablePos) && !setPos.equals(nextMovablePosition)) {
 
 					
-					ImageTile burnable = ge.getElement(nextPos);
+					ImageTile burnable = ge.getElement(setPos);
 					Burnable element1 = (Burnable) burnable;
-
-					addFire(element1, nextPos);
+					if(element1.isBurnt() == false)
+						addFire(element1, setPos);	
 				}
 				
 			}		
@@ -107,8 +108,25 @@ public class Fire extends GameElement {
 					break;
 			}
 			ge.addElement(obj);
-			ge.removeFire(position);
+			removeFire(position);
 		}
+	}
+	
+	/**
+	* Este metodo é invocado para fogo numa determinada posicao
+	* @param position Point2D Valor.
+	*/
+
+	public static void removeFire(Point2D position) {
+		Iterator<ImageTile> it = ge.getFireList().iterator();
+		while(it.hasNext()) {
+			ImageTile fire = it.next();
+			if(fire.getPosition().equals(position)) {
+				ge.removeElement(fire);
+				it.remove();
+			}
+		}
+	
 	}
 	
 	public static int getLargestFireRow() {
@@ -130,6 +148,44 @@ public class Fire extends GameElement {
 		Integer maxEntry = Collections.max(posCount.entrySet(), Map.Entry.comparingByValue()).getKey();
 		return maxEntry;
 
+	}
+	
+	
+	public static void addBurnTime() {
+		List<Point2D> posWithFires = new ArrayList<>();
+		for(ImageTile fire : ge.getFireList()) {
+			posWithFires.add(fire.getPosition());
+		}
+		Iterator<Point2D> it = posWithFires.iterator();
+		while(it.hasNext()) {
+			Point2D pos = it.next();
+		
+			Burnable element = (Burnable) ge.getElement(pos);
+			int burntime = element.getBurnTime();
+			if(--burntime == 0) {
+				
+				removeFire(pos);
+				if(element instanceof Eucaliptus) {
+					ge.addElement(new Eucaliptus("eucaliptus", pos, 1, true));
+				}
+				if(element instanceof Grass) {
+					ge.addElement(new Grass("grass", pos, 1, true));
+				}
+				if(element instanceof Pine) {
+					ge.addElement(new Pine("pine", pos, 1, true));
+				}
+				
+				ge.removeElement( (ImageTile) element);
+				
+			}else {
+				element.setBurnTime(burntime);
+			}
+			
+		}
+		
+		System.out.println(posWithFires);
+		
+		
 	}
 	
 	
