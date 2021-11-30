@@ -9,8 +9,11 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Fireman extends GameElement implements Movable{
 
+	private Bulldozer bulldozer;
+	
 	public Fireman(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
+		this.bulldozer = null;
 	}
 	
 	
@@ -20,14 +23,17 @@ public class Fireman extends GameElement implements Movable{
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
 		GameEngine ge = GameEngine.getInstance();
 		
-		if(ge.isThereFireAtPosition(newPosition) ) {
+		if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
 			
 			Fire.cleanFire(newPosition, direction);	
 			
 		}else if (canMoveTo(newPosition)){
 			
-			if(ge.isThereBulldozer(newPosition)) {
-				ge.removeElement(ge.getFireman());
+			if(ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer) != null) {
+				setPosition(newPosition);
+				ge.removeImage(this);
+				this.bulldozer = ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer);
+				ge.setInBulldozer(true);
 			}else {
 				setPosition(newPosition);
 				Fire.propagateFire(newPosition);
@@ -59,4 +65,16 @@ public class Fireman extends GameElement implements Movable{
 	public String toString() {
 		return "Fireman";	
 	}
+
+
+	public Bulldozer getBulldozer() {
+		return bulldozer;
+	}
+
+
+	public void setBulldozer(Bulldozer bulldozer) {
+		this.bulldozer = bulldozer;
+	}
+
+	
 }

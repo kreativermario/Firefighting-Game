@@ -6,7 +6,7 @@ import pt.iul.ista.poo.utils.Point2D;
 //Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 //Isso sera' de evitar na versao a serio do projeto
 
-public class Eucaliptus extends GameElement implements Burnable {
+public class Eucaliptus extends GameElement implements Burnable, Updatable{
 	public final double probability = 0.10;
 	public final int INITIAL_BURN_TIME = 5;
 	public final String BURNT_NAME = "burnteucaliptus";
@@ -62,9 +62,4 @@ public class Eucaliptus extends GameElement implements Burnable {
 		return isBurnt;
 	}
 
-	@Override
-	public void setBurnt(boolean burnt) {
-		// TODO Auto-generated method stub
-		
-	}
 }

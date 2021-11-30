@@ -16,3 +16,4 @@ Fire 3 8
 Fire 0 3
 Fire 2 6
 Fire 1 1
+Fire 1 9

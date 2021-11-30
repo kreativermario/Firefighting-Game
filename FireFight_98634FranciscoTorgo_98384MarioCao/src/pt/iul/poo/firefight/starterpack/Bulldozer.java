@@ -34,9 +34,9 @@ public class Bulldozer extends GameElement implements Movable{
 	public void move(int keyCode) {
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
-		
-
-		if(canMoveTo(newPosition) && !ge.isThereFireAtPosition(newPosition)) {
+					
+		if(canMoveTo(newPosition) && !ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
+			ge.removeElement(ge.getFireman().getBulldozer());
 			ImageTile obj = null;
 			switch(direction) {
 				case UP:
@@ -52,34 +52,26 @@ public class Bulldozer extends GameElement implements Movable{
 					obj = new Bulldozer("bulldozer_right", newPosition, 3);
 					break;
 			}
-			ge.removeElement(ge.getBulldozer());
-			ge.setBulldozer(obj);
-			ge.addElement(obj);
+			ge.getFireman().setBulldozer((Bulldozer)obj);
+			ge.addElement(ge.getFireman().getBulldozer());
 			demolish(newPosition);
+			ge.getFireman().setPosition(newPosition);
 			setPosition(newPosition);
 			Fire.propagateFire(newPosition);
 		}
 	
 	}
 	
-	public void demolish(Point2D newPosition) {
+	private void demolish(Point2D newPosition) {
 		
-		ImageTile image =  ge.getElement(newPosition);
-
-		if(!ge.isThereFireAtPosition(newPosition) && !(image instanceof Land)) {
+		ImageTile image =  ge.getObjectAtPosition(newPosition, e -> e instanceof Burnable);
+		if(!ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) && image != null) {
 			ge.removeElement(image);
 			ge.addElement(new Land("land", newPosition, 0));
 		}
 		
-		
-		
 	}
-	
-	
-	
-	
-	
-	
+
 	/**
 	* Este metodo é usado para verificar se uma posicao esta dentro da grelha de jogo
 	* @param p Point2D.

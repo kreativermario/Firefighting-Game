@@ -25,16 +25,6 @@ public class Fire extends GameElement {
 		super(name, position, layerValue);
 	}
 	
-	@Override
-	public String getName() {
-		return "fire";
-	}
-
-	@Override
-	public int getLayer() {
-		return 1;
-	}
-	
 	//TODO Debug
 	@Override
 	public String toString() {
@@ -43,33 +33,27 @@ public class Fire extends GameElement {
 	
 	public static void propagateFire(Point2D nextMovablePosition) {
 		
-		
-		for(int i = 0; i < ge.getFireList().size(); i++) {
-			ImageTile element =  ge.getFireList().get(i);
+		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Fire);
+		for(int i = 0; i < fires.size(); i++) {
+			ImageTile element =  fires.get(i);
 			Point2D position = element.getPosition();
 
-
-			
 			List<Point2D> burnPos = position.getNeighbourhoodPoints();
 			Iterator<Point2D> it = burnPos.iterator();
 			Point2D movablePos = null;
 			
-			if(!ge.isInBulldozer())
-				movablePos = ge.getFireman().getPosition();
-			else movablePos = ge.getBulldozer().getPosition();
-			
+			movablePos = ge.getFireman().getPosition();
 			
 			while(it.hasNext()) {
 				Point2D setPos = it.next();
 				
-				if(ge.isItBurnableAtPosition(setPos) && !ge.isThereFireAtPosition(setPos) 
+				if(ge.isThereObjectAtPosition(setPos, e -> e instanceof Burnable) && !ge.isThereObjectAtPosition(setPos, e -> e instanceof Fire) 
 						&& !setPos.equals(movablePos) && !setPos.equals(nextMovablePosition)) {
 
 					
-					ImageTile burnable = ge.getElement(setPos);
-					Burnable element1 = (Burnable) burnable;
-					if(element1.isBurnt() == false)
-						addFire(element1, setPos);	
+					Burnable burnable = ge.getObjectAtPosition(setPos, e -> e instanceof Burnable);
+					if(burnable.isBurnt() == false)
+						addFire(burnable, setPos);	
 				}
 				
 			}		
@@ -77,7 +61,7 @@ public class Fire extends GameElement {
 		}
 	}
 	
-	public static void addFire(Burnable element, Point2D position) {
+	private static void addFire(Burnable element, Point2D position) {
 	    double chance = Math.random() * 1;
 
 		double probability = element.getProbability();
@@ -91,7 +75,7 @@ public class Fire extends GameElement {
 	
 	public static void cleanFire(Point2D position, Direction direction) {
 		
-		if(ge.isItBurnableAtPosition(position) && ge.isThereFireAtPosition(position)) {
+		if(ge.isThereObjectAtPosition(position, e -> e instanceof Burnable) && ge.isThereObjectAtPosition(position, e -> e instanceof Fire)) {
 			ImageTile obj = null;
 			switch(direction) {
 				case UP:
@@ -107,32 +91,20 @@ public class Fire extends GameElement {
 					obj = new Water("water_right", position, 2);
 					break;
 			}
+			ImageTile image = ge.getObjectAtPosition(position, e -> e instanceof Burnable);
+			ge.getScore().givePoints(image);
 			ge.addElement(obj);
-			removeFire(position);
+			ge.removeElement(ge.getObjectAtPosition(position, e -> e instanceof Fire));  
 		}
 	}
 	
-	/**
-	* Este metodo é invocado para fogo numa determinada posicao
-	* @param position Point2D Valor.
-	*/
-
-	public static void removeFire(Point2D position) {
-		Iterator<ImageTile> it = ge.getFireList().iterator();
-		while(it.hasNext()) {
-			ImageTile fire = it.next();
-			if(fire.getPosition().equals(position)) {
-				ge.removeElement(fire);
-				it.remove();
-			}
-		}
-	
-	}
 	
 	public static int getLargestFireRow() {
-
+		
+		List<ImageTile> originalFires = ge.selectObjectsList(e -> e instanceof Fire);
+		
 		List<Integer> fires = new ArrayList<>();
-		for(ImageTile fire : ge.getFireList()) {
+		for(ImageTile fire : originalFires) {
 			fires.add(fire.getPosition().getX());
 		}
 		Map<Integer, Integer> posCount = new HashMap<>();
@@ -152,19 +124,19 @@ public class Fire extends GameElement {
 	
 	
 	public static void addBurnTime() {
+		List<ImageTile> originalFires = ge.selectObjectsList(e -> e instanceof Fire);
 		List<Point2D> posWithFires = new ArrayList<>();
-		for(ImageTile fire : ge.getFireList()) {
+		for(ImageTile fire : originalFires) {
 			posWithFires.add(fire.getPosition());
 		}
 		Iterator<Point2D> it = posWithFires.iterator();
 		while(it.hasNext()) {
 			Point2D pos = it.next();
 		
-			Burnable element = (Burnable) ge.getElement(pos);
+			Updatable element = ge.getObjectAtPosition(pos, e -> e instanceof Updatable);
 			int burntime = element.getBurnTime();
 			if(--burntime == 0) {
-				
-				removeFire(pos);
+				ge.removeElement(ge.getObjectAtPosition(pos, e -> e instanceof Fire));
 				if(element instanceof Eucaliptus) {
 					ge.addElement(new Eucaliptus("eucaliptus", pos, 1, true));
 				}
@@ -174,7 +146,7 @@ public class Fire extends GameElement {
 				if(element instanceof Pine) {
 					ge.addElement(new Pine("pine", pos, 1, true));
 				}
-				
+				ge.getScore().decreaseValue((ImageTile) element);
 				ge.removeElement( (ImageTile) element);
 				
 			}else {
@@ -182,7 +154,7 @@ public class Fire extends GameElement {
 			}
 			
 		}
-		
+		//TODO REMOVE
 		System.out.println(posWithFires);
 		
 		
