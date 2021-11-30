@@ -8,15 +8,27 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Eucaliptus extends GameElement implements Burnable {
 	public final double probability = 0.10;
-	public final int burnTime = 5;
+	public final int INITIAL_BURN_TIME = 5;
+	public final String BURNT_NAME = "burnteucaliptus";
+	public int burnTime;
+	public boolean isBurnt;
 	
 	public Eucaliptus(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
+		burnTime = INITIAL_BURN_TIME;
+		isBurnt = false;
+	}
+	
+	public Eucaliptus(String name, Point2D position, int layerValue, boolean isBurnt) {
+		super(name, position, layerValue);
+		burnTime = INITIAL_BURN_TIME;
+		this.isBurnt = isBurnt;
 	}
 	
 	@Override
 	public String getName() {
-		return "eucaliptus";
+		if(isBurnt) return BURNT_NAME ;	
+		else return super.getName();
 	}
 
 	/**
@@ -36,7 +48,23 @@ public class Eucaliptus extends GameElement implements Burnable {
 	}
 
 	@Override
-	public int burnTime() {
+	public int getBurnTime() {
 		return burnTime;
+	}
+
+	@Override
+	public void setBurnTime(int newBurn) {
+		this.burnTime = newBurn;
+	}
+
+	@Override
+	public boolean isBurnt() {
+		return isBurnt;
+	}
+
+	@Override
+	public void setBurnt(boolean burnt) {
+		// TODO Auto-generated method stub
+		
 	}
 }

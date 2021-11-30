@@ -9,10 +9,27 @@ import pt.iul.ista.poo.utils.Point2D;
 public class Pine extends GameElement implements Burnable {
 	
 	public final double probability = 0.05;
-	public final int burnTime = 10;
+	public final int INITIAL_BURN_TIME = 10;
+	public final String BURNT_NAME = "burntpine";
+	public int burnTime;
+	public boolean isBurnt;
 
 	public Pine(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
+		this.burnTime = INITIAL_BURN_TIME;
+		this.isBurnt = false;
+	}
+	
+	public Pine( String name, Point2D position, int layerValue, boolean isBurnt) {
+		super(name, position, layerValue);
+		this.burnTime = INITIAL_BURN_TIME;
+		this.isBurnt = isBurnt;
+	}
+	
+	@Override
+	public String getName() {
+		if(isBurnt) return BURNT_NAME;
+		else return super.getName();
 	}
 	
 	//TODO Debug
@@ -27,10 +44,24 @@ public class Pine extends GameElement implements Burnable {
 	}
 
 	@Override
-	public int burnTime() {
+	public int getBurnTime() {
 		return burnTime;
 	}
+
+	@Override
+	public void setBurnTime(int newBurn) {
+		this.burnTime = newBurn;
+	}
 	
+	@Override
+	public boolean isBurnt() {
+		return isBurnt;
+	}
+
+	@Override
+	public void setBurnt(boolean burnt) {
+		this.isBurnt = burnt;
+	}
 	
 
 

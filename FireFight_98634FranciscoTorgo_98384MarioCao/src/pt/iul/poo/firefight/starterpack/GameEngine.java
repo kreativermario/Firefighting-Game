@@ -88,7 +88,7 @@ public class GameEngine implements Observer {
 	public void update(Observed source) {
 
 		int key = gui.keyPressed();              // obtem o codigo da tecla pressionada
-		
+		//TODO remove
 //		if (key == KeyEvent.VK_ENTER) {            // se a tecla for ENTER, manda o bombeiro mover
 //			fireman.move();			
 //			Point2D position = fireman.getPosition();
@@ -102,37 +102,53 @@ public class GameEngine implements Observer {
 //				
 //		}
 		
-		if(key == KeyEvent.VK_ENTER && inBulldozer) {
-			fireman = new Fireman("fireman", bulldozer.getPosition(), 3);
-			addElement(fireman);
-			inBulldozer = false;
-		}
-		
-		if(key == KeyEvent.VK_P && plane == null) {
-			Point2D initPos = new Point2D(Fire.getLargestFireRow(), 9);
-			this.plane = new Plane("plane", initPos, 4);
-			addElement(plane);
-		}
+		Water.removeWater();
 		if(!tileList.contains(plane))
 			plane = null;
-		
-		
+		switch(key) {
+			case KeyEvent.VK_P:
+				if(plane == null) {
+					Point2D initPos = new Point2D(Fire.getLargestFireRow(), 9);
+					this.plane = new Plane("plane", initPos, 4);
+					addElement(plane);
+				}
+				break;
+			case KeyEvent.VK_ENTER:
+				if(inBulldozer) {
+					fireman = new Fireman("fireman", bulldozer.getPosition(), 3);
+					addElement(fireman);
+					inBulldozer = false;
+				}
+				break;
+			default:
+				if(Direction.isDirection(key)) {
 
-		Water.removeWater();
-		if(Direction.isDirection(key)) {
-			if(plane != null)
-				plane.move();
-			if(inBulldozer == false) {
-				fireman.move(key);
-			}else if(inBulldozer == true && bulldozer != null) {
-				bulldozer.move(key);
-			}
-			addFiresToList();
+					if(plane != null) {
+						plane.move();
+					}
+						
+					if(inBulldozer == false) {
+						fireman.move(key);
+					}else if(inBulldozer == true && bulldozer != null) {
+						bulldozer.move(key);
+					}
+					addFiresToList();
+					Fire.addBurnTime();
+
+				}
+		
+		
 		}
 		
-		
-		
-		
+		//TODO Remove
+		debug();
+			
+		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
+	}
+	
+	
+	//TODO remove debug
+	public void debug() {
 		//TODO debug
 		System.out.println();
 		for(int i = 0; i < tileList.size(); i++) {
@@ -171,10 +187,17 @@ public class GameEngine implements Observer {
 			System.out.println("BULLDOZER DOES NOT EXIST");
 		}
 		
+		System.out.println();
+		
+	
 		
 		
-		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
+	
+	
+	
+	
+	
 	
 	
 	/**
@@ -184,11 +207,10 @@ public class GameEngine implements Observer {
 	*/
 
 	public ImageTile getElement(Point2D position) {
-		
 		Iterator<ImageTile> it = tileList.iterator();
 		while(it.hasNext()) {
 			ImageTile element = it.next();
-			if(element.getPosition().equals(position)) {
+			if(element.getPosition().equals(position) && !(element instanceof Fire)) {
 				return element;
 			}
 		}
@@ -200,7 +222,6 @@ public class GameEngine implements Observer {
 	* @param position Point2D Valor.
 	* @return boolean Quando existe true, em contrario false.
 	*/
-
 	public boolean isThereBulldozer(Point2D position) {
 		Iterator<ImageTile> it = tileList.iterator();
 		while(it.hasNext()) {
@@ -217,7 +238,6 @@ public class GameEngine implements Observer {
 	/**
 	* Este metodo é invocado para adicionar objeto fogo a uma lista que guarda elementos como este
 	*/
-
 	private void addFiresToList() {
 		for(ImageTile element : tileList) {
 			if(element instanceof Fire &&  !fireList.contains(element)) {
@@ -225,6 +245,7 @@ public class GameEngine implements Observer {
 			}
 		}
 	}
+	
 	
 
 	//TODO isFireAtPosition ou isWater
@@ -279,22 +300,7 @@ public class GameEngine implements Observer {
 		return plane;
 	}
 
-	/**
-	* Este metodo é invocado para fogo numa determinada posicao
-	* @param position Point2D Valor.
-	*/
-
-	public void removeFire(Point2D position) {
-		Iterator<ImageTile> it = fireList.iterator();
-		while(it.hasNext()) {
-			ImageTile fire = it.next();
-			if(fire.getPosition().equals(position)) {
-				removeElement(fire);
-				it.remove();
-			}
-		}
 	
-	}
 	
 	/**
 	* Este metodo é invocado para verificar se existe fogo numa determinada posicao
@@ -365,7 +371,7 @@ public class GameEngine implements Observer {
 	public void removeElement(ImageTile element) {
 		tileList.remove(element);
 		gui.removeImage(element);
-		if(element instanceof Fireman) {
+		if(element instanceof Fireman && inBulldozer == false) {
 			inBulldozer = true;
 		}
 		gui.update();
@@ -446,13 +452,13 @@ public class GameEngine implements Observer {
 				obj = new Burnt("burnt", position, 0);
 				break;
 			case "BurntEucaliptus":
-				obj = new BurntEucaliptus("burnteucaliptus", position, 0);
+				obj = new Eucaliptus("burnteucaliptus", position, 0, true);
 				break;
 			case "BurntGrass":
-				obj = new BurntGrass("burntgrass", position, 0);
+				obj = new Grass("burntgrass", position, 0, true);
 				break;
 			case "BurntPine":
-				obj = new BurntPine("burntpine", position, 0);
+				obj = new Pine("burntpine", position, 0, true);
 				break;
 			case "Eucaliptus":
 				obj = new Eucaliptus("eucaliptus", position, 0);

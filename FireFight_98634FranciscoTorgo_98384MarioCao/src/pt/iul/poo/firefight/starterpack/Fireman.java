@@ -30,14 +30,10 @@ public class Fireman extends GameElement implements Movable{
 				ge.removeElement(ge.getFireman());
 			}else {
 				setPosition(newPosition);
-				Fire.propagateFire();
+				Fire.propagateFire(newPosition);
 			}
-			
-			
+				
 		}
-			
-		
-		
 	
 	}
 	

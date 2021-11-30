@@ -1,5 +1,7 @@
 package pt.iul.poo.firefight.starterpack;
 
+import java.util.Iterator;
+
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Point2D;
 
