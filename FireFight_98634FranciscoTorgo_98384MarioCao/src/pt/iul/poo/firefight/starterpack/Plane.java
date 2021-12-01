@@ -33,10 +33,7 @@ public class Plane extends GameElement{
 			}
 			
 		}
-		
-	
-	
-		
+
 	
 	}
 	

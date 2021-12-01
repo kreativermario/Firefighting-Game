@@ -1,6 +1,7 @@
 package pt.iul.poo.firefight.starterpack;
 
 import java.util.Iterator;
+import java.util.List;
 
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Point2D;
@@ -22,11 +23,12 @@ public class Water extends GameElement {
 	
 	public static void removeWater() {
 		GameEngine ge = GameEngine.getInstance();
-		for(int i = 0; i < ge.getTileList().size(); i++) {
-			ImageTile image = ge.getTileList().get(i);
-			if(image instanceof Water) {
+		List<ImageTile> waters = ge.selectObjectsList(e -> e instanceof Water);
+		
+		
+		for(int i = 0; i < waters.size(); i++) {
+			ImageTile image = waters.get(i);
 				ge.removeElement(image);
-			}
 		}
 	}	
 	
