@@ -12,6 +12,7 @@ public class Score {
 	public static final int PINE_VALUE = 25;
 	public static final int EUCALIPTUS_VALUE = 50;
 	public static final int GRASS_VALUE = 100;
+	public GameEngine ge = GameEngine.getInstance();
 	
 	
 	public Score() {
@@ -83,11 +84,14 @@ public class Score {
 	
 	//TODO ver se já existir o ficheiro, ver se o score anterior é maior ou menor 
 	public void saveToFile(String nomePlayer) {
-		File ficheiro = new File(nomePlayer + ".txt");
+		int levelNumber = ge.getLevelNumber();
+		String levelName = "level" + levelNumber;
+		File ficheiro = new File(levelName + "_" + nomePlayer + ".txt");
 	
 		try {
 			System.out.println("ESTOU A CRIAR O FICHEIRO " + ficheiro);
 			PrintWriter pw = new PrintWriter("score/" + ficheiro);
+			pw.println("Level name: " + levelName);
 			pw.println("Player name:" + nomePlayer);
 			pw.println("Score: " + scoreValue);
 		

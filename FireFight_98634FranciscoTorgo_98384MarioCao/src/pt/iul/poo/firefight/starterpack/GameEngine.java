@@ -3,6 +3,7 @@ package pt.iul.poo.firefight.starterpack;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -45,6 +46,7 @@ public class GameEngine implements Observer {
 	// Dimensoes da grelha de jogo
 	public static final int GRID_HEIGHT = 10;
 	public static final int GRID_WIDTH = 10;
+	public static final int REMOVE_SCORE_PER_PLAY = 25;
 	
 	private ImageMatrixGUI gui;  		// Referencia para ImageMatrixGUI (janela de interface com o utilizador) 
 	private List<ImageTile> tileList;	// Lista de imagens
@@ -54,7 +56,8 @@ public class GameEngine implements Observer {
 	private Plane plane;
 	private static GameEngine INSTANCE;	//Obter a instancia atual do GameEngine
 	private Score score;
-	
+	private List<String> levels = fileNames("levels/");
+	private int levelNumber = 0;
 	
 	// Neste exemplo o setup inicial da janela que faz a interface com o utilizador e' feito no construtor 
 	// Tambem poderia ser feito no main - estes passos tem sempre que ser feitos!
@@ -123,7 +126,7 @@ public class GameEngine implements Observer {
 				break;
 			default:
 				if(Direction.isDirection(key)) {
-					score.setScoreValue(-10);
+					score.setScoreValue(REMOVE_SCORE_PER_PLAY);
 					if(plane != null) {
 						plane.move();
 					}
@@ -140,8 +143,16 @@ public class GameEngine implements Observer {
 		}
 		
 		//TODO Remove
-		debug();
-			
+		//debug();
+		List<ImageTile> fireList = selectObjectsList(e -> e instanceof Fire);
+		//TODO DO NOT DELETE USE FOR LEVELS!!!!
+		if(fireList.size() == 0) {
+			gui.setMessage("Level Over!");
+			score.saveToFile(playerName);
+			nextLevel();
+		}
+		
+		gui.setStatusMessage("Score: " + score.getScoreValue());
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
 	
@@ -177,12 +188,7 @@ public class GameEngine implements Observer {
 		System.out.println("DUPE --> " + existsDup);
 		System.out.println();
 		gui.setStatusMessage("Fire Count: " + fireList.size());
-		if(fireList.size() == 0) {
-			gui.setMessage("Game Over!");
-			score.saveToFile(playerName);
-			
-			
-		}
+	
 		System.out.println();
 		if(fireman.getBulldozer() != null) {
 			System.out.println("FIREMAN IN BULLDOZER");
@@ -200,7 +206,7 @@ public class GameEngine implements Observer {
 		
 		System.out.println();
 		System.out.println(score.getScoreValue());
-		gui.setStatusMessage("Score: " + score.getScoreValue());
+		
 		
 	}
 	
@@ -265,8 +271,9 @@ public class GameEngine implements Observer {
 		return plane;
 	}
 	
-	
-	
+	public int getLevelNumber() {
+		return levelNumber;
+	}
 	
 	public Score getScore() {
 		return score;
@@ -331,6 +338,24 @@ public class GameEngine implements Observer {
 		this.playerName = JOptionPane.showInputDialog("Introduza o nickname: ");
 		
 	}
+	
+	
+	private void nextLevel() {
+		gui.clearImages();
+		tileList.clear();
+		this.fireman = null;
+		this.plane = null;
+		if(levelNumber >= levels.size()) {
+			gui.setMessage("Game Over! All levels done!");
+			gui.dispose();
+		}else {
+			start();
+		}
+			
+	}
+	
+	
+	
 	
 	
 	/** Função auxiliar a createTerrain()
@@ -424,7 +449,8 @@ public class GameEngine implements Observer {
 	 * */
 	private void createTerrain() {
 		try {
-			File fileName = new File("levels/example.txt");
+			File fileName = new File(levels.get(levelNumber));
+			levelNumber++;
 			Scanner sc = new Scanner(fileName);
 			int y = 0;
 			while(sc.hasNextLine()) {
@@ -458,6 +484,38 @@ public class GameEngine implements Observer {
 		
 		
 	}
+	
+	
+	/**
+	 * Função que devolve uma lista de nomes de ficheiros dado um diretorio
+	 * @param directoryPath String Nome do directorio de ficheiros
+	 * @return fileNames List<String> Retorna uma lista com
+	 * o nome dos ficheiros com o directorio. Exemplo: "levels/exemplo.txt"
+	 * */
+	public static List<String> fileNames(String directoryPath) {
+
+		File file = new File(directoryPath);
+		
+		FilenameFilter filter = new FilenameFilter() {
+	        @Override
+	        public boolean accept(File f, String name) {
+	            return name.endsWith(".txt");
+	        }
+	    };
+	    
+	    String[] results = file.list(filter);
+	    List<String> fileNames = new ArrayList<>();
+	    for(String result : results) {
+	    	fileNames.add(directoryPath + result); 
+	    }
+	    return fileNames;
+	}
+	
+	
+
+	
+	
+	
 	
 		
 	// Envio das mensagens para a GUI - note que isto so' precisa de ser feito no inicio

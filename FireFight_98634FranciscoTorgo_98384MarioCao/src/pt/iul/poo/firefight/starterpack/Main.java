@@ -8,5 +8,6 @@ public class Main {
 		
 		GameEngine game = GameEngine.getInstance();
 		game.start();
+
 	}
 }
