@@ -7,13 +7,35 @@ import pt.iul.ista.poo.utils.Point2D;
 // Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 // Isso sera' de evitar na versao a serio do projeto
 
-public class Fireman extends GameElement implements Movable{
+/**
+* <h1>Fireman</h1>
+* Implementação da classe Fireman
+* Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
+* Tem atributos e metodos repetidos em relacao ao que está definido noutras classes
+* 
+* @author Mario Cao-N98384
+* @author Francisco Trogo-N98634
+* @since 2021-11-01
+*/
 
-	private Bulldozer bulldozer;
+public class Fireman extends GameElement implements Movable, ActiveElement{
+	//TODO Remover bulldozer
+	private boolean isActive;
 	
+	/**
+	* Construtor Fireman
+	*/
 	public Fireman(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
-		this.bulldozer = null;
+		this.isActive = true;
+	}
+	
+	/**
+	* Construtor Fireman com atribuição de Active
+	*/
+	public Fireman(String name, Point2D position, int layerValue, boolean isActive) {
+		super(name, position, layerValue);
+		this.isActive = isActive;
 	}
 	
 	
@@ -29,11 +51,11 @@ public class Fireman extends GameElement implements Movable{
 			
 		}else if (canMoveTo(newPosition)){
 			
-			if(ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer) != null) {
+			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Bulldozer)) {
 				setPosition(newPosition);
 				ge.removeImage(this);
-				this.bulldozer = ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer);
-				ge.setInBulldozer(true);
+				this.setActive(false);
+				((Bulldozer) ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer)).setActive(true);
 			}else {
 				setPosition(newPosition);
 				Fire.propagateFire(newPosition);
@@ -67,13 +89,16 @@ public class Fireman extends GameElement implements Movable{
 	}
 
 
-	public Bulldozer getBulldozer() {
-		return bulldozer;
+
+	@Override
+	public boolean isActive() {
+		return isActive;
 	}
 
 
-	public void setBulldozer(Bulldozer bulldozer) {
-		this.bulldozer = bulldozer;
+	@Override
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 
 	

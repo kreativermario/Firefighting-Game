@@ -65,6 +65,9 @@ public class Fire extends GameElement {
 	    double chance = Math.random() * 1;
 
 		double probability = element.getProbability();
+		
+		//TODO DEBUG
+		System.out.println("PROBABILITY -> " + probability + " | CHANCE -> " + chance);
 
 		if(chance <= probability) {
 			ge.addElement(new Fire("fire", position, 1));

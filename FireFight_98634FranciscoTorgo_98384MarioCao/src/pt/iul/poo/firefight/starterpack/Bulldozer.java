@@ -17,12 +17,20 @@ import pt.iul.ista.poo.utils.Point2D;
 * @since 2021-11-01
 */
 
-public class Bulldozer extends GameElement implements Movable{
+public class Bulldozer extends GameElement implements Movable, ActiveElement{
 	
 	private static final GameEngine ge = GameEngine.getInstance();
+	private boolean isActive;
+	
 	
 	public Bulldozer(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
+		isActive = false;
+	}
+	
+	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive) {
+		super(name, position, layerValue);
+		this.isActive = isActive;
 	}
 
 	/**
@@ -35,25 +43,25 @@ public class Bulldozer extends GameElement implements Movable{
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
 					
-		if(canMoveTo(newPosition) && !ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
-			ge.removeElement(ge.getFireman().getBulldozer());
+		if(canMoveTo(newPosition) && !ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) 
+				&& !ge.isThereObjectAtPosition(newPosition, e -> e instanceof Bulldozer)) {
+			ge.removeElement(ge.getObjectAtPosition(ge.getFireman().getPosition(), e -> e instanceof Bulldozer));
 			ImageTile obj = null;
 			switch(direction) {
 				case UP:
-					obj = new Bulldozer("bulldozer_up", newPosition, 3);
+					obj = new Bulldozer("bulldozer_up", newPosition, 3, true);
 					break;
 				case DOWN:
-					obj = new Bulldozer("bulldozer_down", newPosition, 3);
+					obj = new Bulldozer("bulldozer_down", newPosition, 3, true);
 					break;
 				case LEFT:
-					obj = new Bulldozer("bulldozer_left", newPosition, 3);
+					obj = new Bulldozer("bulldozer_left", newPosition, 3, true);
 					break;
 				case RIGHT:
-					obj = new Bulldozer("bulldozer_right", newPosition, 3);
+					obj = new Bulldozer("bulldozer_right", newPosition, 3, true);
 					break;
 			}
-			ge.getFireman().setBulldozer((Bulldozer)obj);
-			ge.addElement(ge.getFireman().getBulldozer());
+			ge.addElement(obj);
 			demolish(newPosition);
 			ge.getFireman().setPosition(newPosition);
 			setPosition(newPosition);
@@ -101,5 +109,15 @@ public class Bulldozer extends GameElement implements Movable{
 	@Override
 	public String toString() {
 		return "Bulldozer";	
+	}
+
+	@Override
+	public boolean isActive() {
+		return isActive;
+	}
+
+	@Override
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 }

@@ -1,0 +1,16 @@
+1;apa;3900
+2;apa;2600
+3;apa;4150
+1;apa;999
+1;rui;3400
+1;nuis;3425
+1;bruno;1975
+1;bruno;3225
+1;valter;3575
+1;ma;2950
+1;americo;2625
+1;marcelo;3300
+2;marcelo;3275
+1;pedro;3475
+2;pedro;3475
+3;pedro;3875

@@ -1,6 +1,5 @@
 package pt.iul.poo.firefight.starterpack;
 
-import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
 
@@ -8,18 +7,46 @@ import pt.iul.ista.poo.utils.Point2D;
 // Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 // Isso sera' de evitar na versao a serio do projeto
 
-public class Plane extends GameElement{
+/**
+* <h1>Plane</h1>
+* Implementação da classe Plane
+* Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
+* Tem atributos e metodos repetidos em relacao ao que está definido noutras classes
+* 
+* @author Mario Cao-N98384
+* @author Francisco Trogo-N98634
+* @since 2021-11-01
+*/
 
-	public Plane(String name, Point2D position, int layerValue) {
+public class Plane extends GameElement{
+	
+	private static GameEngine ge = GameEngine.getInstance();	
+	
+	
+	/**
+	* Construtor Plane
+	*/
+
+	public Plane(String name, Point2D position, int layerValue){
 		super(name, position, layerValue);
 	}
+	
+	
+	public static void init() {
+		Point2D initPos = new Point2D(Fire.getLargestFireRow(), 9);
+		Plane plane = new Plane("plane", initPos, 4);
+		ge.setPlane(plane);
+		ge.addElement(plane);
+	}
+	
+	
 	
 	
 	// Move numa direcao
 	public void move() {
 		Direction UP = Direction.UP;
 		
-		GameEngine ge = GameEngine.getInstance();	
+		
 		
 		for(int i = 0; i <= 2; i++) {
 			Point2D newPosition = super.getPosition().plus(UP.asVector());
