@@ -9,6 +9,8 @@ public class Main {
 		
 		GameEngine game = GameEngine.getInstance();
 		game.start();
+		//Terminar o jogo
+		if(game.isGameOver()) game = null;
 		
 	
 

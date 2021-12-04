@@ -2,7 +2,6 @@ package pt.iul.poo.firefight.starterpack;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.util.*;
@@ -47,7 +46,7 @@ public class GameEngine implements Observer {
 	// Dimensoes da grelha de jogo
 	public static final int GRID_HEIGHT = 10;
 	public static final int GRID_WIDTH = 10;
-	public static final int REMOVE_SCORE_PER_PLAY = -100;
+	public static final int REMOVE_SCORE_PER_PLAY = -10;
 	public static final String LEVEL_DIR = "levels";
 	public static final String LEVEL_PREFIX = "level";
 	private static GameEngine INSTANCE;	//Obter a instancia atual do GameEngine
@@ -55,11 +54,11 @@ public class GameEngine implements Observer {
 	private ImageMatrixGUI gui;  		// Referencia para ImageMatrixGUI (janela de interface com o utilizador) 
 	private List<ImageTile> tileList;	// Lista de imagens
 	private Fireman fireman;			// Referencia para o bombeiro
-	private boolean inBulldozer = false;
 	private String playerName;
-	private Plane plane;
 	private Score score;
+	private Score playerHighestScore = null;
 	private List<String> levels = getFilenameWithPrefix(LEVEL_DIR + "/", LEVEL_PREFIX);
+	private boolean gameOver = false;
 	private int levelNumber = 0;
 	
 	// Neste exemplo o setup inicial da janela que faz a interface com o utilizador e' feito no construtor 
@@ -96,11 +95,15 @@ public class GameEngine implements Observer {
 
 		int key = gui.keyPressed();              // obtem o codigo da tecla pressionada
 		
-		Water.removeWater();
-		if(!tileList.contains(plane))
-			plane = null;
+		
+		List<ActiveElement> planeList = selectObjectsList(e -> e instanceof ActiveElement && e instanceof Plane);
+		ActiveElement plane = getActive(planeList);
+		
+		removeDisappear(); 			//Remove água e explosões
+		
 		switch(key) {
 			case KeyEvent.VK_P:
+				
 				if(plane == null) {
 					Plane.init();
 				}
@@ -118,37 +121,41 @@ public class GameEngine implements Observer {
 			default:
 				if(Direction.isDirection(key)) {
 					score.setScoreValue(REMOVE_SCORE_PER_PLAY);
-					List<ActiveElement> activeList = selectObjectsList(e -> e instanceof ActiveElement);
-					Movable object = getActive(activeList);
-
-					if(plane != null) {
-						plane.move();
-					}
+					List<ActiveElement> activeList = selectObjectsList(e -> e instanceof ActiveElement && 
+							e instanceof Movable);
+					Movable object = (Movable) getActive(activeList);
 					
 					object.move(key);
 					
+					Plane plane1 = (Plane) plane;
+					if(plane1 != null) {
+						plane1.move();
+					}
 					
-					
-					
-					
-					
-//					if(inBulldozer == false) {
-//						fireman.move(key);
-//					}else if(inBulldozer == true && fireman.getBulldozer() != null) {
-//						fireman.getBulldozer().move(key);
-//					}
-					Fire.addBurnTime();
+					//TODO ver se coloco aqui ou no Fireman
+					//Fire.addBurnTime();
 
 				}
 		
 		
 		}
+		playerHighestScore = Score.getPlayerHighscore(playerName, levelNumber);
+		if(playerHighestScore != null) {		
+			int highestScore = playerHighestScore.getScoreValue();
+			gui.setStatusMessage("Level nº " + levelNumber + " | " + "Score: " 
+			+ score.getScoreValue() + " | Player Name: " + playerName + " | Your Highscore: " + highestScore);
+		}else {
+			gui.setStatusMessage("Level nº " + levelNumber + " | " + "Score: " + score.getScoreValue() + " | Player Name: " + playerName);
+		}
 		
 		//TODO Remove
 		//debug();
 		levelOver();
+			
 		
-		gui.setStatusMessage("Score: " + score.getScoreValue());
+		
+		
+		
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
 	
@@ -195,14 +202,7 @@ public class GameEngine implements Observer {
 			System.out.println("FIREMAN NOT IN BULLDOZER");
 		}
 		
-		System.out.println();
-		
-		if(plane != null) {
-			System.out.println("PLANE EXISTS");
-		}else {
-			System.out.println("PLANE DOES NOT EXIST");
-		}
-		
+
 		System.out.println();
 		System.out.println(score.getScoreValue());
 		
@@ -210,10 +210,10 @@ public class GameEngine implements Observer {
 	}
 	
 	
-	private static Movable getActive(List<ActiveElement> activeList) {
+	private static ActiveElement getActive(List<ActiveElement> activeList) {
 		for(ActiveElement activeElement : activeList) {
 			if(activeElement.isActive() == true) {
-				return (Movable) activeElement;
+				return activeElement;
 			}
 				
 		}
@@ -238,7 +238,19 @@ public class GameEngine implements Observer {
 		}
 		return null;
 	}
-
+	
+	
+	private void removeDisappear() {
+		List<ImageTile> gifs = selectObjectsList(e -> e instanceof Disappears);
+		for(int i = 0; i < gifs.size(); i++) {
+			ImageTile image = gifs.get(i);
+				removeElement(image);
+		}
+	}
+	
+	
+	
+	
 	
 	/**
 	 * Função que diz se o objeto de uma determinada instancia existe numa certa posição
@@ -261,6 +273,7 @@ public class GameEngine implements Observer {
 		List<ImageTile> fireList = selectObjectsList(e -> e instanceof Fire);
 		//TODO DO NOT DELETE USE FOR LEVELS!!!!
 		if(fireList.size() == 0) {
+			playerHighestScore = null;		//Reset do high score do player para cada nivel
 			gui.setMessage("Level Over!");
 			score.saveToFile(playerName);
 			List<Score> top5 = Score.getTop5Score(levelNumber);
@@ -273,6 +286,7 @@ public class GameEngine implements Observer {
 			}
 			
 			gui.setMessage(str);
+			Score.saveTop5File(top5);
 			
 			nextLevel();
 		}
@@ -314,38 +328,10 @@ public class GameEngine implements Observer {
 	public Fireman getFireman() {
 		return fireman;
 	}
-	
-	/**
-	 * Devolve se o fireman está dentro do bulldozer
-	 * @return inBulldozer boolean
-	 * */
-	public boolean isInBulldozer() {
-		return inBulldozer;
-	}
-	
-	
-	/**
-	 * Setter do inBulldozer (flag se o fireman está a usar o bulldozer)
-	 * @param inBulldozer boolean
-	 * */
-	public void setInBulldozer(boolean inBulldozer) {
-		this.inBulldozer = inBulldozer;
-	}
-	
-	/**
-	 * Getter do avião (Plane)
-	 * @return plane Plane
-	 * */
-	public Plane getPlane() {
-		return plane;
-	}
-	
-	/**
-	 * Setter do Plane
-	 * @param inBulldozer boolean
-	 * */
-	public void setPlane(Plane plane) {
-		this.plane = plane;
+
+
+	public boolean isGameOver() {
+		return gameOver;
 	}
 
 	/**
@@ -434,8 +420,8 @@ public class GameEngine implements Observer {
 		gui.clearImages();
 		tileList.clear();
 		this.fireman = null;
-		this.plane = null;
 		if(levelNumber >= levels.size()) {
+			this.gameOver = true;
 			gui.setMessage("Game Over! All levels done!");
 			gui.dispose();
 		}else {
@@ -445,7 +431,8 @@ public class GameEngine implements Observer {
 	}
 
 	
-	/** Função auxiliar a createTerrain()
+	/** 
+	 * 	Método fábrica
 	 * 	Verifica se o elemento é uma das opções e
 	 * 	adiciona ao mapa a carregar na GUI
 	 * 	@param element char
@@ -454,6 +441,12 @@ public class GameEngine implements Observer {
 	private void addFromChar(char element, Point2D position) {
 		GameElement obj = null;
 		switch(element) {
+			case 'a':
+				obj = new Abies("abies", position, 0);
+				break;
+			case 'b':
+				obj = new FuelBarrel("fuelbarrel", position, 0);
+				break;
 			case 'p':
 				obj  = new Pine("pine",position, 0);
 				break;
@@ -475,24 +468,31 @@ public class GameEngine implements Observer {
 	}
 	
 	
-	/** Função auxiliar a createTerrain()
+	/** Método Fábrica
 	 * 	Verifica se o elemento é uma das opções e
 	 * 	adiciona ao mapa a carregar na GUI
 	 * 	@param element String
 	 * 	@param position Point2D
 	 * */
-	private void addFromString(String element, Point2D position) {
+	public void addFromString(String element, Point2D position) {
 		GameElement obj = null;
 		switch(element) {
 			case "Fireman":
-				fireman = new Fireman("fireman", position, 3);
-				obj = fireman;
+				if(!isThereObjectAtPosition(position, e -> e instanceof Fire)) {
+					fireman = new Fireman("fireman", position, 3);
+					obj = fireman;
+				}else throw new IllegalArgumentException("Fireman não pode spawnar em cima de um fogo");
 				break;
 			case "Bulldozer":
-				obj = new Bulldozer("bulldozer", position, 3);
+				if(!isThereObjectAtPosition(position, e -> e instanceof Fire)) {
+					obj = new Bulldozer("bulldozer", position, 3);
+				}else throw new IllegalArgumentException("Bulldozer não pode spawnar em cima de um fogo");	
 				break;
 			case "Fire":
-				obj = new Fire("fire", position, 1);
+				if(!isThereObjectAtPosition(position, e -> e instanceof Fireman) 
+						&& !isThereObjectAtPosition(position, e -> e instanceof Bulldozer)) {
+					obj = new Fire("fire", position, 1);
+				}else throw new IllegalArgumentException("Fogo não pode spawnar em cima de um fireman ou bulldozer");	
 				break;
 			case "Burnt":
 				obj = new Burnt("burnt", position, 0);
@@ -509,6 +509,9 @@ public class GameEngine implements Observer {
 			case "Eucaliptus":
 				obj = new Eucaliptus("eucaliptus", position, 0);
 				break;
+			case "Explosion":
+				obj = new Explosion("explosion", position, 3);
+				break;
 			case "Grass":
 				obj = new Grass("grass", position, 0);
 				break;
@@ -517,6 +520,18 @@ public class GameEngine implements Observer {
 				break;
 			case "Pine":
 				obj = new Pine("pine", position, 0);
+				break;
+			case "Abies":
+				obj = new Abies("abies", position, 0);
+				break;
+			case "FuelBarrel":
+				obj = new FuelBarrel("fuelbarrel", position, 0);
+				break;
+			case "BurntFuelBarrel":
+				obj = new FuelBarrel("fuelbarrel", position, 0, true);
+				break;
+			case "BurntAbies":
+				obj = new Abies("abies", position, 0, true);
 				break;
 			case "Water":
 				obj = new Water("water", position, 2);
@@ -547,6 +562,7 @@ public class GameEngine implements Observer {
 					int yMove = Integer.parseInt(line[2]);
 					Point2D position = new Point2D(xMove,yMove);
 					String element = line[0];
+					//TODO Debug
 					System.out.println("Y -> " + y + " " + element + " " + xMove + " " + yMove); 		
 					addFromString(element, position);
 					

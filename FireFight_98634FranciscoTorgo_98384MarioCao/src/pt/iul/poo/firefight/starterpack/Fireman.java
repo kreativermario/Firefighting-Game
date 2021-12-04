@@ -59,6 +59,7 @@ public class Fireman extends GameElement implements Movable, ActiveElement{
 			}else {
 				setPosition(newPosition);
 				Fire.propagateFire(newPosition);
+				Fire.addBurnTime(newPosition);
 			}
 				
 		}

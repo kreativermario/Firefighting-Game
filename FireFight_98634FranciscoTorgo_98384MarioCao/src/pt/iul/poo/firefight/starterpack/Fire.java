@@ -17,7 +17,7 @@ import pt.iul.ista.poo.utils.Point2D;
 //Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 //Isso sera' de evitar na versao a serio do projeto
 
-public class Fire extends GameElement {
+public class Fire extends GameElement implements Combustible{
 
 	private static GameEngine ge = GameEngine.getInstance();
 	
@@ -31,29 +31,44 @@ public class Fire extends GameElement {
 		return "Fire";	
 	}
 	
+	
+	public static boolean canSetFire(Point2D setPos, Point2D nextMovablePosition) {
+		Point2D firemanPos = ge.getFireman().getPosition();
+
+		return ge.isThereObjectAtPosition(setPos, e -> e instanceof Burnable) && 
+					!ge.isThereObjectAtPosition(setPos, e -> e instanceof Fire) 
+					&& !setPos.equals(firemanPos) && !setPos.equals(nextMovablePosition)
+					&& !ge.isThereObjectAtPosition(setPos, e -> e instanceof Bulldozer);
+		
+	}
+	
+	
+	
 	public static void propagateFire(Point2D nextMovablePosition) {
 		
-		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Fire);
+		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Combustible);
+		
+		//Não propagar fogo se o barril de fogo já estiver queimado
+		fires.removeIf(e -> e instanceof FuelBarrel && ((FuelBarrel) e).isBurnt() == true);
+
 		for(int i = 0; i < fires.size(); i++) {
 			ImageTile element =  fires.get(i);
 			Point2D position = element.getPosition();
 
 			List<Point2D> burnPos = position.getNeighbourhoodPoints();
 			Iterator<Point2D> it = burnPos.iterator();
-			Point2D movablePos = null;
 			
-			movablePos = ge.getFireman().getPosition();
 			
 			while(it.hasNext()) {
 				Point2D setPos = it.next();
 				
-				if(ge.isThereObjectAtPosition(setPos, e -> e instanceof Burnable) && !ge.isThereObjectAtPosition(setPos, e -> e instanceof Fire) 
-						&& !setPos.equals(movablePos) && !setPos.equals(nextMovablePosition)) {
-
-					
+				if(canSetFire(setPos, nextMovablePosition) == true) {
 					Burnable burnable = ge.getObjectAtPosition(setPos, e -> e instanceof Burnable);
-					if(burnable.isBurnt() == false)
-						addFire(burnable, setPos);	
+				
+					if(burnable.isBurnt() == false) {
+							addFire(burnable, setPos, nextMovablePosition);	
+					}
+						
 				}
 				
 			}		
@@ -61,17 +76,19 @@ public class Fire extends GameElement {
 		}
 	}
 	
-	private static void addFire(Burnable element, Point2D position) {
+	public static void addFire(Burnable element, Point2D position, Point2D nextMovablePosition) {
 	    double chance = Math.random() * 1;
 
 		double probability = element.getProbability();
 		
 		//TODO DEBUG
 		System.out.println("PROBABILITY -> " + probability + " | CHANCE -> " + chance);
-
-		if(chance <= probability) {
+		if(element instanceof FuelBarrel) {
+			((FuelBarrel) element).explode(nextMovablePosition);
+		}else if(!(element instanceof FuelBarrel) && chance <= probability) {
 			ge.addElement(new Fire("fire", position, 1));
 		}
+		
 		
 
 	}	
@@ -126,8 +143,10 @@ public class Fire extends GameElement {
 	}
 	
 	
-	public static void addBurnTime() {
-		List<ImageTile> originalFires = ge.selectObjectsList(e -> e instanceof Fire);
+	
+	
+	public static void addBurnTime(Point2D nextMovablePosition) {
+		List<ImageTile> originalFires = ge.selectObjectsList(e -> e instanceof Combustible);
 		List<Point2D> posWithFires = new ArrayList<>();
 		for(ImageTile fire : originalFires) {
 			posWithFires.add(fire.getPosition());
@@ -138,27 +157,38 @@ public class Fire extends GameElement {
 		
 			Updatable element = ge.getObjectAtPosition(pos, e -> e instanceof Updatable);
 			int burntime = element.getBurnTime();
-			if(--burntime == 0) {
-				ge.removeElement(ge.getObjectAtPosition(pos, e -> e instanceof Fire));
+			
+			if(--burntime == 0 && ((Burnable) element).isBurnt() == false) {
+				if(!(element instanceof FuelBarrel)) {
+					ge.removeElement(ge.getObjectAtPosition(pos, e -> e instanceof Fire));
+				}
 				if(element instanceof Eucaliptus) {
-					ge.addElement(new Eucaliptus("eucaliptus", pos, 1, true));
+					ge.addElement(new Eucaliptus("eucaliptus", pos, 0, true));
 				}
 				if(element instanceof Grass) {
-					ge.addElement(new Grass("grass", pos, 1, true));
+					ge.addElement(new Grass("grass", pos, 0, true));
 				}
 				if(element instanceof Pine) {
-					ge.addElement(new Pine("pine", pos, 1, true));
+					ge.addElement(new Pine("pine", pos, 0, true));
 				}
-				ge.getScore().decreaseValue((ImageTile) element);
+				if(element instanceof Abies) {
+					ge.addElement(new Abies("abies", pos, 0, true));
+				}
+				if(element instanceof FuelBarrel){
+					//TODO remove?
+					((FuelBarrel) element).explode(nextMovablePosition);
+					
+				}
+				
 				ge.removeElement( (ImageTile) element);
+				ge.getScore().decreaseValue((ImageTile) element);
+				
 				
 			}else {
 				element.setBurnTime(burntime);
 			}
 			
 		}
-		//TODO REMOVE
-		System.out.println(posWithFires);
 		
 		
 	}

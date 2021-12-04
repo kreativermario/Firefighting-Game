@@ -18,10 +18,10 @@ import pt.iul.ista.poo.utils.Point2D;
 * @since 2021-11-01
 */
 
-public class Plane extends GameElement{
+public class Plane extends GameElement implements ActiveElement{
 	
 	private static GameEngine ge = GameEngine.getInstance();	
-	
+	private boolean isActive;
 	
 	/**
 	* Construtor Plane
@@ -29,13 +29,13 @@ public class Plane extends GameElement{
 
 	public Plane(String name, Point2D position, int layerValue){
 		super(name, position, layerValue);
+		isActive = true;
 	}
 	
 	
 	public static void init() {
 		Point2D initPos = new Point2D(Fire.getLargestFireRow(), 9);
 		Plane plane = new Plane("plane", initPos, 4);
-		ge.setPlane(plane);
 		ge.addElement(plane);
 	}
 	
@@ -56,7 +56,7 @@ public class Plane extends GameElement{
 				Fire.cleanFire(botPosition, UP);	
 				setPosition(newPosition);
 			}else {
-				ge.removeElement(ge.getPlane());
+				ge.removeElement(this);
 			}
 			
 		}
@@ -85,5 +85,17 @@ public class Plane extends GameElement{
 	@Override
 	public String toString() {
 		return "Fireman";	
+	}
+
+
+	@Override
+	public boolean isActive() {
+		return isActive;
+	}
+
+
+	@Override
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;	
 	}
 }

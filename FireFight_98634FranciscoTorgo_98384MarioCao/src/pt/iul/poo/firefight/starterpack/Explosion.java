@@ -10,17 +10,16 @@ import pt.iul.ista.poo.utils.Point2D;
 //Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 //Isso sera' de evitar na versao a serio do projeto
 
-public class Water extends GameElement implements Disappears{
+public class Explosion extends GameElement implements Disappears{
 	
-	public Water(String name, Point2D position, int layerValue) {
+	public Explosion(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 	}	
 	
 	//TODO Debug
 	public String toString() {
-		return "Water";	}
-	
-	
+		return "Explosion";	}
+
 	
 	
 }
