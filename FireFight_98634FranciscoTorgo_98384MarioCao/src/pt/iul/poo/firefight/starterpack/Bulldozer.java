@@ -17,13 +17,49 @@ import pt.iul.ista.poo.utils.Point2D;
 * @since 2021-11-01
 */
 
-public class Bulldozer extends GameElement implements Movable{
+public class Bulldozer extends GameElement implements Movable, ActiveElement, Directionable, Drivable{
 	
 	private static final GameEngine ge = GameEngine.getInstance();
+	private boolean isActive;
+	private Direction dir;
+	
 	
 	public Bulldozer(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
+		isActive = false;
+		this.dir = null;
 	}
+	
+	
+	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
+		super(name, position, layerValue);
+		this.isActive = isActive;
+		this.dir = direction;
+	}
+	
+	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive) {
+		super(name, position, layerValue);
+		this.isActive = isActive;
+		this.dir = null;
+	}
+	
+	@Override
+	public String getName() {
+		if(this.dir != null) {
+			switch(this.dir) {
+				case UP:
+					return "bulldozer_up";
+				case DOWN:
+					return "bulldozer_down";
+				case LEFT:
+					return "bulldozer_left";
+				case RIGHT:
+					return "bulldozer_right";
+			}	
+		}
+		return "bulldozer";		
+	}
+	
 
 	/**
 	* Este metodo é usado para mover um objeto na interface grafica, neste caso Bulldozer
@@ -35,29 +71,18 @@ public class Bulldozer extends GameElement implements Movable{
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
 					
-		if(canMoveTo(newPosition) && !ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
-			ge.removeElement(ge.getFireman().getBulldozer());
-			ImageTile obj = null;
-			switch(direction) {
-				case UP:
-					obj = new Bulldozer("bulldozer_up", newPosition, 3);
-					break;
-				case DOWN:
-					obj = new Bulldozer("bulldozer_down", newPosition, 3);
-					break;
-				case LEFT:
-					obj = new Bulldozer("bulldozer_left", newPosition, 3);
-					break;
-				case RIGHT:
-					obj = new Bulldozer("bulldozer_right", newPosition, 3);
-					break;
-			}
-			ge.getFireman().setBulldozer((Bulldozer)obj);
-			ge.addElement(ge.getFireman().getBulldozer());
-			demolish(newPosition);
+		if(canMoveTo(newPosition) ) {
+			
+			//Atualizar a direction do Bulldozer
+			this.setDirection(direction);
+			
+			this.demolish(newPosition);
 			ge.getFireman().setPosition(newPosition);
-			setPosition(newPosition);
+			this.setPosition(newPosition);
+			
 			Fire.propagateFire(newPosition);
+			Fire.addBurnTime(newPosition);
+			
 		}
 	
 	}
@@ -84,7 +109,10 @@ public class Bulldozer extends GameElement implements Movable{
 		if (p.getY() < 0) return false;
 		if (p.getX() >= GameEngine.GRID_WIDTH) return false;
 		if (p.getY() >= GameEngine.GRID_HEIGHT) return false;
+		if(ge.isThereObjectAtPosition(p, e -> e instanceof Fire)) return false;
+		if(ge.isThereObjectAtPosition(p, e -> e instanceof Drivable)) return false;
 		return true;
+		
 	}
 	
 	/**
@@ -102,4 +130,26 @@ public class Bulldozer extends GameElement implements Movable{
 	public String toString() {
 		return "Bulldozer";	
 	}
+
+	@Override
+	public boolean isActive() {
+		return isActive;
+	}
+
+	@Override
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	@Override
+	public void setDirection(Direction direction) {
+		this.dir = direction;
+	}
+	
+	
+	
+	
+	
+	
+	
 }

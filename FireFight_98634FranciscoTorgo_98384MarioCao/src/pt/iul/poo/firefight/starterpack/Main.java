@@ -1,5 +1,6 @@
 package pt.iul.poo.firefight.starterpack;
 
+
 public class Main {
 	public static void main(String[] args) {
 		
@@ -8,6 +9,10 @@ public class Main {
 		
 		GameEngine game = GameEngine.getInstance();
 		game.start();
+		//Terminar o jogo
+		if(game.isGameOver()) game = null;
+		
+	
 
 	}
 }

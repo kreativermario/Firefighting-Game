@@ -61,5 +61,10 @@ public class Eucaliptus extends GameElement implements Burnable, Updatable{
 	public boolean isBurnt() {
 		return isBurnt;
 	}
+	
+	@Override
+	public void setBurnt(boolean isBurnt) {
+		this.isBurnt = isBurnt;
+	}
 
 }

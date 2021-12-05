@@ -1,9 +1,7 @@
 package pt.iul.poo.firefight.starterpack;
 
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
+import java.io.*;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -46,17 +44,19 @@ public class GameEngine implements Observer {
 	// Dimensoes da grelha de jogo
 	public static final int GRID_HEIGHT = 10;
 	public static final int GRID_WIDTH = 10;
-	public static final int REMOVE_SCORE_PER_PLAY = 25;
+	public static final int REMOVE_SCORE_PER_PLAY = -10;
+	public static final String LEVEL_DIR = "levels";
+	public static final String LEVEL_PREFIX = "level";
+	private static GameEngine INSTANCE;	//Obter a instancia atual do GameEngine
 	
 	private ImageMatrixGUI gui;  		// Referencia para ImageMatrixGUI (janela de interface com o utilizador) 
 	private List<ImageTile> tileList;	// Lista de imagens
 	private Fireman fireman;			// Referencia para o bombeiro
-	private boolean inBulldozer = false;
 	private String playerName;
-	private Plane plane;
-	private static GameEngine INSTANCE;	//Obter a instancia atual do GameEngine
 	private Score score;
-	private List<String> levels = fileNames("levels/");
+	private Score playerHighestScore = null;
+	private List<String> levels = getFilenameWithPrefix(LEVEL_DIR + "/", LEVEL_PREFIX);
+	private boolean gameOver = false;
 	private int levelNumber = 0;
 	
 	// Neste exemplo o setup inicial da janela que faz a interface com o utilizador e' feito no construtor 
@@ -72,7 +72,7 @@ public class GameEngine implements Observer {
 	}
 	
 	/**
-	* Este metodo fabrica cria um Singleton
+	* Método Singleton 
 	*/
 
 	public static GameEngine getInstance() {
@@ -92,67 +92,88 @@ public class GameEngine implements Observer {
 	public void update(Observed source) {
 
 		int key = gui.keyPressed();              // obtem o codigo da tecla pressionada
-		//TODO remove
-//		if (key == KeyEvent.VK_ENTER) {            // se a tecla for ENTER, manda o bombeiro mover
-//			fireman.move();			
-//			Point2D position = fireman.getPosition();
-//			// Verificar se tem pinheiro na posicao
-//				// Queimar (burn)
-//				// Aficionar um objeto tipo Fire no jogo (tileList) e no gui (addImage)
-//			if(isItBurnableAtPosition(position)) {
-//				Fire fire = new Fire(new Point2D(position.getX(), position.getY()));
-//				addElement(fire);
-//			}
-//				
-//		}
 		
-		Water.removeWater();
-		if(!tileList.contains(plane))
-			plane = null;
+		
+		List<ActiveElement> planeList = selectObjectsList(e -> e instanceof ActiveElement && e instanceof Plane);
+		ActiveElement plane = getActive(planeList);
+		
+		removeDisappear(); 			//Remove água e explosões
+		
 		switch(key) {
 			case KeyEvent.VK_P:
+				
 				if(plane == null) {
-					Point2D initPos = new Point2D(Fire.getLargestFireRow(), 9);
-					this.plane = new Plane("plane", initPos, 4);
-					addElement(plane);
+					Plane.init();
 				}
 				break;
 			case KeyEvent.VK_ENTER:
-				if(inBulldozer) {
+				List<ActiveElement> drivableList = selectObjectsList(e -> e instanceof ActiveElement && e instanceof Drivable);
+				ActiveElement drivable  = (ActiveElement) getActive(drivableList);
+				
+				if(drivable != null) {
+					
 					gui.addImage(fireman);
-					fireman.setBulldozer(null);
-					inBulldozer = false;
+					fireman.setActive(true);
+					drivable.setActive(false);
+					
 				}
 				break;
 			default:
 				if(Direction.isDirection(key)) {
+					
 					score.setScoreValue(REMOVE_SCORE_PER_PLAY);
-					if(plane != null) {
-						plane.move();
+					
+					List<ActiveElement> activeList = selectObjectsList(e -> e instanceof ActiveElement && 
+							e instanceof Movable);
+					
+					Movable object = (Movable) getActive(activeList);
+					
+					object.move(key);
+					
+					//Mover os FiremanBot
+					
+					List<FiremanBot> botList = selectObjectsList(e -> e instanceof FiremanBot);
+	
+					for(FiremanBot element : botList) {
+						element.move();
 					}
-					if(inBulldozer == false) {
-						fireman.move(key);
-					}else if(inBulldozer == true && fireman.getBulldozer() != null) {
-						fireman.getBulldozer().move(key);
+										
+					Plane plane1 = (Plane) plane;
+					
+					if(plane1 != null) {
+						
+						plane1.move();
+						
 					}
-					Fire.addBurnTime();
 
 				}
 		
 		
 		}
 		
-		//TODO Remove
-		//debug();
-		List<ImageTile> fireList = selectObjectsList(e -> e instanceof Fire);
-		//TODO DO NOT DELETE USE FOR LEVELS!!!!
-		if(fireList.size() == 0) {
-			gui.setMessage("Level Over!");
-			score.saveToFile(playerName);
-			nextLevel();
+		//Dá display do highest score do player se já tinha jogado anteriormente
+		playerHighestScore = Score.getPlayerHighscore(playerName, levelNumber);
+		
+		if(playerHighestScore != null) {		
+			
+			int highestScore = playerHighestScore.getScoreValue();
+			gui.setStatusMessage("Level nº " + levelNumber + " | " + "Score: " 
+			+ score.getScoreValue() + " | Player Name: " + playerName + " | Your Highscore: " + highestScore);
+			
+		}else {
+			
+			gui.setStatusMessage("Level nº " + levelNumber + " | " + "Score: " + score.getScoreValue() + " | Player Name: " + playerName);
+			
 		}
 		
-		gui.setStatusMessage("Score: " + score.getScoreValue());
+		//TODO Remove
+		//debug();
+		checkLevelOver();
+			
+		
+		
+		
+		
 		gui.update();                            // redesenha as imagens na GUI, tendo em conta as novas posicoes
 	}
 	
@@ -190,20 +211,16 @@ public class GameEngine implements Observer {
 		gui.setStatusMessage("Fire Count: " + fireList.size());
 	
 		System.out.println();
-		if(fireman.getBulldozer() != null) {
+		List<ActiveElement> activeList = selectObjectsList(e -> e instanceof ActiveElement && e instanceof Bulldozer);
+		ActiveElement bulldozer = (ActiveElement) getActive(activeList);
+		
+		if(bulldozer != null) {
 			System.out.println("FIREMAN IN BULLDOZER");
 		}else {
 			System.out.println("FIREMAN NOT IN BULLDOZER");
 		}
 		
-		System.out.println();
-		
-		if(plane != null) {
-			System.out.println("PLANE EXISTS");
-		}else {
-			System.out.println("PLANE DOES NOT EXIST");
-		}
-		
+
 		System.out.println();
 		System.out.println(score.getScoreValue());
 		
@@ -211,70 +228,122 @@ public class GameEngine implements Observer {
 	}
 	
 	
+	private static ActiveElement getActive(List<ActiveElement> activeList) {
+		for(ActiveElement activeElement : activeList) {
+			if(activeElement.isActive() == true) {
+				return activeElement;
+			}
+				
+		}
+		return null;
+	}
 	
+	
+	
+	private void removeDisappear() {
+		List<ImageTile> gifs = selectObjectsList(e -> e instanceof Disappears);
+		for(int i = 0; i < gifs.size(); i++) {
+			ImageTile image = gifs.get(i);
+				removeElement(image);
+		}
+	}
+	
+	
+	/**
+	 * Função que devolve o objeto numa certa posição de determinada instância dado um Predicate
+	 * @param position Point2D
+	 * @param filtro Predicate<GameElement> filtro
+	 * @return element T
+	 * */
 	public <T> T getObjectAtPosition(Point2D position, Predicate<GameElement> filtro) {
-		for(ImageTile image : tileList) {
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile image = it.next();
 			GameElement element = (GameElement) image;
 			if(filtro.test(element) && element.getPosition().equals(position))
 				return (T) element;
 		}
 		return null;
 	}
-
-	
-	public boolean isThereObjectAtPosition(Point2D position, Predicate<GameElement> filtro) {
-		for(ImageTile image : tileList) {
-			GameElement element = (GameElement) image;
-			if(filtro.test(element) && element.getPosition().equals(position))
-				return true;
-		}
-		return false;
-		
-	}
-	
-
-	public void removeImage(ImageTile image) {
-		gui.removeImage(image);
-	}
 	
 	
+	/**
+	 * Função que devolve uma lista de objetos de uma certa instância dado um Predicate<GameElement>
+	 * @param filtro Predicate<GameElement> filtro
+	 * @return list List<T>
+	 * */
 	public <T> List<T> selectObjectsList(Predicate<GameElement> filtro){
 		List<T> list = new ArrayList<>();
-		for(ImageTile image : tileList) {
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile image = it.next();
 			GameElement element = (GameElement) image;
 			if(filtro.test(element))
 				list.add((T) image);
 		}
+		
 		return list;
 	}
 	
 
 	/**
-	* Getter do Fireman
-	* @return fireman.
-	*/
+	 * Função que diz se o objeto de uma determinada instancia existe numa certa posição
+	 * @param position Point2D
+	 * @param filtro Predicate<GameElement> filtro
+	 * @return boolean
+	 * */
+	public boolean isThereObjectAtPosition(Point2D position, Predicate<GameElement> filtro) {
+		
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile image = it.next();
+			GameElement element = (GameElement) image;
+			if(filtro.test(element) && element.getPosition().equals(position))
+				return true;
+			
+		}
+		return false;
+	
+	}
+	
+	
+	
+	/**
+	 * Procedimento que remove uma imagem do GUI
+	 * @param image ImageTile;
+	 * */
+	public void removeImage(ImageTile image) {
+		gui.removeImage(image);
+	}
+	
+	
 
+	/**
+	* Getter do Fireman
+	* @return fireman Fireman
+	*/
 	public Fireman getFireman() {
 		return fireman;
 	}
 
-	public boolean isInBulldozer() {
-		return inBulldozer;
+
+	public boolean isGameOver() {
+		return gameOver;
 	}
 
-	public void setInBulldozer(boolean inBulldozer) {
-		this.inBulldozer = inBulldozer;
-	}
-	
-
-	public Plane getPlane() {
-		return plane;
-	}
-	
+	/**
+	 * Getter do numero de nível do mapa
+	 * @return levelNumber int
+	 * */
 	public int getLevelNumber() {
 		return levelNumber;
 	}
 	
+	
+	/**
+	 * Getter do Score
+	 * @return score Score
+	 * */
 	public Score getScore() {
 		return score;
 	}
@@ -284,7 +353,7 @@ public class GameEngine implements Observer {
 	* @param image ImageTile Imagem do elemento a verificar.
 	* @return boolean Quando existe true, em contrario false.
 	*/
-	private boolean isThereElement(ImageTile image) {
+	public boolean isThereElement(ImageTile image) {
 		for(ImageTile element : tileList) {
 			if(element.getPosition().equals(image.getPosition()) && element.getName().equals(image.getName()) && element.getLayer() == element.getLayer())
 				return true;
@@ -292,12 +361,13 @@ public class GameEngine implements Observer {
 		return false;
 	}
 	
+	
+	
 
 	/**
 	* Este metodo é invocado para adicionar um determinado elemento ao jogo
 	* @param element ImageTile Elemento a adicionar.
 	*/
-
 	public void addElement(ImageTile element) {
 		if(!isThereElement(element)) {
 			tileList.add(element);
@@ -305,11 +375,11 @@ public class GameEngine implements Observer {
 		}
 	}
 	
+	
 	/**
 	* Este metodo é invocado para remover um determinado elemento do jogo
 	* @param element ImageTile Elemento a remover.
 	*/
-
 	public void removeElement(ImageTile element) {
 		tileList.remove(element);
 		gui.removeImage(element);
@@ -319,7 +389,6 @@ public class GameEngine implements Observer {
 	/**
 	* Este metodo é invocado para criar objetos e enviar imagens para o GUI
 	*/
-
 	public void start() {
 		createTerrain();      // criar mapa do terreno
 		//TODO Debug
@@ -335,17 +404,53 @@ public class GameEngine implements Observer {
 		}
 		sendImagesToGUI();    // enviar as imagens para a GUI
 		gui.update();
-		this.playerName = JOptionPane.showInputDialog("Introduza o nickname: ");
+		//Só pede o nickname no primeiro nível
+		if(levelNumber == 1) {
+			this.playerName = JOptionPane.showInputDialog("Introduza o nickname: ");
+		}
+		
 		
 	}
 	
 	
+	
+	private void checkLevelOver() {
+		List<ImageTile> fireList = selectObjectsList(e -> e instanceof Fire);
+		
+		//TODO DO NOT DELETE USE FOR LEVELS!!!!
+		
+		if(fireList.size() == 0) {
+			playerHighestScore = null;		//Reset do high score do player para cada nivel
+			gui.setMessage("Level Over!");
+			score.saveToFile(playerName);
+			List<Score> top5 = Score.getTop5Score(levelNumber);
+			//TODO DEBUG
+			System.out.println(top5);
+			String str = "TOP SCORE: " + System.lineSeparator();
+			for(int i = 1; i <= top5.size(); i++) {
+				Score score = top5.get(i-1);
+				str += i + ". " + score.getPlayerName() + " - " + score.getScoreValue() + System.lineSeparator();
+			}
+			
+			gui.setMessage(str);
+			Score.saveTop5File(top5);
+			
+			nextLevel();
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * Método que muda o nível/mapa ou acaba o jogo
+	 * */
 	private void nextLevel() {
 		gui.clearImages();
 		tileList.clear();
 		this.fireman = null;
-		this.plane = null;
 		if(levelNumber >= levels.size()) {
+			this.gameOver = true;
 			gui.setMessage("Game Over! All levels done!");
 			gui.dispose();
 		}else {
@@ -355,18 +460,28 @@ public class GameEngine implements Observer {
 	}
 	
 	
+	public void setFireman(Fireman fireman) {
+		this.fireman = fireman;
+	}
 	
 	
-	
-	/** Função auxiliar a createTerrain()
+	/** 
+	 * 	Método fábrica
 	 * 	Verifica se o elemento é uma das opções e
-	 * 	adiciona ao mapa a carregar na GUI
+	 * 	cria o objeto
 	 * 	@param element char
 	 * 	@param position Point2D
+	 *  @return obj ImageTile
 	 * */
-	private void addFromChar(char element, Point2D position) {
+	private ImageTile addFromChar(char element, Point2D position) {
 		GameElement obj = null;
 		switch(element) {
+			case 'a':
+				obj = new Abies("abies", position, 0);
+				break;
+			case 'b':
+				obj = new FuelBarrel("fuelbarrel", position, 0);
+				break;
 			case 'p':
 				obj  = new Pine("pine",position, 0);
 				break;
@@ -383,73 +498,19 @@ public class GameEngine implements Observer {
 				throw new IllegalArgumentException("Erro a dar load ao mapa");
 		}
 		if(obj != null && !tileList.contains(obj))
-			tileList.add(obj);
+			return obj;
+		return null;
 						
 	}
 	
-	
-	/** Função auxiliar a createTerrain()
-	 * 	Verifica se o elemento é uma das opções e
-	 * 	adiciona ao mapa a carregar na GUI
-	 * 	@param element String
-	 * 	@param position Point2D
-	 * */
-	private void addFromString(String element, Point2D position) {
-		GameElement obj = null;
-		switch(element) {
-			case "Fireman":
-				fireman = new Fireman("fireman", position, 3);
-				obj = fireman;
-				break;
-			case "Bulldozer":
-				obj = new Bulldozer("bulldozer", position, 3);
-				break;
-			case "Fire":
-				obj = new Fire("fire", position, 1);
-				break;
-			case "Burnt":
-				obj = new Burnt("burnt", position, 0);
-				break;
-			case "BurntEucaliptus":
-				obj = new Eucaliptus("burnteucaliptus", position, 0, true);
-				break;
-			case "BurntGrass":
-				obj = new Grass("burntgrass", position, 0, true);
-				break;
-			case "BurntPine":
-				obj = new Pine("burntpine", position, 0, true);
-				break;
-			case "Eucaliptus":
-				obj = new Eucaliptus("eucaliptus", position, 0);
-				break;
-			case "Grass":
-				obj = new Grass("grass", position, 0);
-				break;
-			case "Land":
-				obj = new Land("land", position, 0);
-				break;
-			case "Pine":
-				obj = new Pine("pine", position, 0);
-				break;
-			case "Water":
-				obj = new Water("water", position, 2);
-				break;
-			default:
-				throw new IllegalArgumentException("Erro a dar load ao mapa");
-		}
-		if(obj != null && !tileList.contains(obj))
-			tileList.add(obj);
-		
-	}
-	
-	
+
 	/** 
 	 * 	Dá load de um mapa que é ficheiro txt
 	 * 	para o tileList (Vetor) e GUI.
 	 * */
 	private void createTerrain() {
 		try {
-			File fileName = new File(levels.get(levelNumber));
+			File fileName = new File(LEVEL_DIR + "/" + levels.get(levelNumber));
 			levelNumber++;
 			Scanner sc = new Scanner(fileName);
 			int y = 0;
@@ -460,8 +521,12 @@ public class GameEngine implements Observer {
 					int yMove = Integer.parseInt(line[2]);
 					Point2D position = new Point2D(xMove,yMove);
 					String element = line[0];
-					System.out.println("Y -> " + y + " " + element + " " + xMove + " " + yMove); 		
-					addFromString(element, position);
+					//TODO Debug
+					System.out.println("Y -> " + y + " " + element + " " + xMove + " " + yMove); 	
+					
+					ImageTile image = GameElement.addFromString(element, position);
+					if(image != null)
+						tileList.add(image);	
 					
 				}else {
 					String line = sc.nextLine();
@@ -469,7 +534,10 @@ public class GameEngine implements Observer {
 					for(int x = 0; x < line.length(); x++) {
 						char element = line.charAt(x);
 						Point2D position = new Point2D(x,y);
-						addFromChar(element, position);
+						ImageTile image = addFromChar(element, position);
+						if(image != null)
+							tileList.add(image);	
+						
 					}
 					y++;
 					
@@ -492,30 +560,44 @@ public class GameEngine implements Observer {
 	 * @return fileNames List<String> Retorna uma lista com
 	 * o nome dos ficheiros com o directorio. Exemplo: "levels/exemplo.txt"
 	 * */
-	public static List<String> fileNames(String directoryPath) {
-
-		File file = new File(directoryPath);
-		
+//	public static List<String> fileNames(String directoryPath) {
+//
+//		
+//		File file = new File(directoryPath);
+//		
+//		FilenameFilter filter = new FilenameFilter() {
+//	        @Override
+//	        public boolean accept(File f, String name) {
+//	            return name.endsWith(".txt");
+//	        }
+//	    };
+//	    
+//	    String[] results = file.list(filter);
+//	    List<String> fileNames = new ArrayList<>();
+//	    for(String result : results) {
+//	    	fileNames.add(directoryPath + result); 
+//	    }
+//	    return fileNames;
+//	}
+	
+	public static List<String> getFilenameWithPrefix(String directoryPath, String prefix) {
+		File directory = new File(directoryPath);
 		FilenameFilter filter = new FilenameFilter() {
 	        @Override
-	        public boolean accept(File f, String name) {
-	            return name.endsWith(".txt");
+	        public boolean accept(File dir, String name) {
+	        	return name.matches( "level\\d+.txt" );
 	        }
 	    };
 	    
-	    String[] results = file.list(filter);
-	    List<String> fileNames = new ArrayList<>();
-	    for(String result : results) {
-	    	fileNames.add(directoryPath + result); 
-	    }
-	    return fileNames;
+		File[] files = directory.listFiles(filter);
+		List<String> fileArray = new ArrayList<>();
+		for(File f : files) {
+			fileArray.add(f.getName());
+		}
+		
+		return fileArray;
 	}
-	
-	
 
-	
-	
-	
 	
 		
 	// Envio das mensagens para a GUI - note que isto so' precisa de ser feito no inicio

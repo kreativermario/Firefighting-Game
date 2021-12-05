@@ -7,36 +7,90 @@ import pt.iul.ista.poo.utils.Point2D;
 // Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 // Isso sera' de evitar na versao a serio do projeto
 
-public class Fireman extends GameElement implements Movable{
+/**
+* <h1>Fireman</h1>
+* Implementação da classe Fireman
+* Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
+* Tem atributos e metodos repetidos em relacao ao que está definido noutras classes
+* 
+* @author Mario Cao-N98384
+* @author Francisco Trogo-N98634
+* @since 2021-11-01
+*/
 
-	private Bulldozer bulldozer;
+public class Fireman extends GameElement implements Movable, ActiveElement, Directionable{
+	//TODO Remover bulldozer
+	private boolean isActive;
+	private Direction dir;
 	
+	/**
+	* Construtor Fireman
+	*/
 	public Fireman(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
-		this.bulldozer = null;
+		this.isActive = true;
+		this.dir = null;
 	}
 	
+	/**
+	* Construtor Fireman com atribuição de Active
+	*/
+	public Fireman(String name, Point2D position, int layerValue, boolean isActive) {
+		super(name, position, layerValue);
+		this.isActive = isActive;
+		this.dir = null;
+	}
+	
+	public Fireman(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
+		super(name, position, layerValue);
+		this.isActive = isActive;
+		this.dir = direction;
+	}
+	
+
+	
+	@Override
+	public String getName() {
+		if(dir != null) {
+			switch(this.dir) {
+				case LEFT:
+					return "fireman_left";
+				case RIGHT:
+					return "fireman_right";
+				default:
+					break;
+			}	
+		}
+		return "fireman";
+	}
 	
 	// Move numa direcao
 	public void move(int keyCode) {
+		
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
 		GameEngine ge = GameEngine.getInstance();
 		
+		//Se houver fogo limpa
 		if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
 			
 			Fire.cleanFire(newPosition, direction);	
 			
 		}else if (canMoveTo(newPosition)){
 			
-			if(ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer) != null) {
-				setPosition(newPosition);
-				ge.removeImage(this);
-				this.bulldozer = ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer);
-				ge.setInBulldozer(true);
-			}else {
-				setPosition(newPosition);
-				Fire.propagateFire(newPosition);
+			this.setDirection(direction);
+			setPosition(newPosition);
+			Fire.propagateFire(newPosition);
+			Fire.addBurnTime(newPosition);
+			
+			//Se houver Bulldozer, ou seja, fireman vai entrar no Bulldozer
+			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Drivable && e instanceof ActiveElement)) {
+				
+				ge.removeImage(this);  //Retira o fireman do GUI mas nao do tileList
+				
+				this.setActive(false);	//Coloca o fireman a inativo
+				
+				((ActiveElement) ge.getObjectAtPosition(newPosition, e -> e instanceof Drivable)).setActive(true);		//Coloca o Drivable a ativo
 			}
 				
 		}
@@ -67,14 +121,23 @@ public class Fireman extends GameElement implements Movable{
 	}
 
 
-	public Bulldozer getBulldozer() {
-		return bulldozer;
+
+	@Override
+	public boolean isActive() {
+		return isActive;
 	}
 
 
-	public void setBulldozer(Bulldozer bulldozer) {
-		this.bulldozer = bulldozer;
+	@Override
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
+	
+	@Override
+	public void setDirection(Direction direction) {
+		this.dir = direction;
+	}
+	
 
 	
 }
