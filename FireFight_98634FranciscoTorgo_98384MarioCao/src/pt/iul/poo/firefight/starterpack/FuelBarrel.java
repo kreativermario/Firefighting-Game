@@ -34,7 +34,8 @@ public class FuelBarrel extends GameElement implements Burnable, Updatable, Comb
 		Iterator<Point2D> it = wideNeighbours.iterator();
 		GameEngine ge = GameEngine.getInstance();
 		ge.addElement(new Explosion("explosion", this.getPosition(), 3));
-		ge.addElement(new FuelBarrel("fuelbarrel", this.getPosition(), 0, true));
+		this.setBurnt(true);
+		//ge.addElement(new FuelBarrel("fuelbarrel", this.getPosition(), 0, true));
 		while(it.hasNext()) {
 			Point2D setPos = it.next();
 			
@@ -49,11 +50,6 @@ public class FuelBarrel extends GameElement implements Burnable, Updatable, Comb
 		
 		
 	}
-	
-	
-	
-	
-	
 	
 	
 	@Override
@@ -91,6 +87,11 @@ public class FuelBarrel extends GameElement implements Burnable, Updatable, Comb
 	@Override
 	public boolean isBurnt() {
 		return isBurnt;
+	}
+	
+	@Override
+	public void setBurnt(boolean isBurnt) {
+		this.isBurnt = isBurnt;
 	}
 
 }

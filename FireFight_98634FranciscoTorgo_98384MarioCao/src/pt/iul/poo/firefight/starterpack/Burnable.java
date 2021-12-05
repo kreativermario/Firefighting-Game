@@ -15,4 +15,5 @@ public interface Burnable {
 	public int getLayer();
 	public double getProbability();
 	public boolean isBurnt();
+	public void setBurnt(boolean isBurnt);
 }

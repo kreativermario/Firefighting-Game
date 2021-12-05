@@ -76,34 +76,28 @@ public class Fire extends GameElement implements Combustible{
 		if(element instanceof FuelBarrel) {
 			((FuelBarrel) element).explode(nextMovablePosition);
 		}else if(!(element instanceof FuelBarrel) && chance <= probability) {
-			ge.addElement(new Fire("fire", position, 1));
+			ImageTile fire = GameElement.create("Fire", position);
+			ge.addElement(fire);
 		}
 		
-		
-
 	}	
 	
 	public static void cleanFire(Point2D position, Direction direction) {
 		
 		if(ge.isThereObjectAtPosition(position, e -> e instanceof Burnable) && ge.isThereObjectAtPosition(position, e -> e instanceof Fire)) {
-			ImageTile obj = null;
-			switch(direction) {
-				case UP:
-					obj = new Water("water_up", position, 2);
-					break;
-				case DOWN:
-					obj = new Water("water_down", position, 2);
-					break;
-				case LEFT:
-					obj = new Water("water_left", position, 2);
-					break;
-				case RIGHT:
-					obj = new Water("water_right", position, 2);
-					break;
-			}
+			
+			ImageTile water = null;
+			water = Water.create(position, direction);
+			
 			ImageTile image = ge.getObjectAtPosition(position, e -> e instanceof Burnable);
+			
+			//Dar os pontos
 			ge.getScore().givePoints(image);
-			ge.addElement(obj);
+			
+			//Colocar a agua
+			ge.addElement(water);
+			
+			//Remover o fogo
 			ge.removeElement(ge.getObjectAtPosition(position, e -> e instanceof Fire));  
 		}
 	}
@@ -127,8 +121,8 @@ public class Fire extends GameElement implements Combustible{
 			posCount.put(x, count);
 				
 		}
-		Integer maxEntry = Collections.max(posCount.entrySet(), Map.Entry.comparingByValue()).getKey();
-		return maxEntry;
+		Integer maxRow = Collections.max(posCount.entrySet(), Map.Entry.comparingByValue()).getKey();
+		return maxRow;
 
 	}
 	
@@ -136,41 +130,40 @@ public class Fire extends GameElement implements Combustible{
 	
 	
 	public static void addBurnTime(Point2D nextMovablePosition) {
-		List<ImageTile> originalFires = ge.selectObjectsList(e -> e instanceof Combustible);
+		List<ImageTile> originalFires = ge.selectObjectsList(e -> e instanceof Combustible);	
 		List<Point2D> posWithFires = new ArrayList<>();
+		
+		//Criou-se vetor com as posicoes dos fogos
 		for(ImageTile fire : originalFires) {
 			posWithFires.add(fire.getPosition());
 		}
+		
 		Iterator<Point2D> it = posWithFires.iterator();
+		
+		//Percorrer posicoes com fogos e aceder aos Updatable
 		while(it.hasNext()) {
 			Point2D pos = it.next();
 		
 			Updatable element = ge.getObjectAtPosition(pos, e -> e instanceof Updatable);
 			int burntime = element.getBurnTime();
 			
+			
 			if(--burntime == 0 && ((Burnable) element).isBurnt() == false) {
+				
+				//Fuel barrel não tem fogo logo nao se remove o fogo
 				if(!(element instanceof FuelBarrel)) {
-					ge.removeElement(ge.getObjectAtPosition(pos, e -> e instanceof Fire));
+					ge.removeElement(ge.getObjectAtPosition(pos, e -> e instanceof Fire));		
 				}
-				if(element instanceof Eucaliptus) {
-					ge.addElement(new Eucaliptus("eucaliptus", pos, 0, true));
-				}
-				if(element instanceof Grass) {
-					ge.addElement(new Grass("grass", pos, 0, true));
-				}
-				if(element instanceof Pine) {
-					ge.addElement(new Pine("pine", pos, 0, true));
-				}
-				if(element instanceof Abies) {
-					ge.addElement(new Abies("abies", pos, 0, true));
-				}
+				//Fuel barrel consumido vai explodir sem verificar as probabilidades
 				if(element instanceof FuelBarrel){
-					//TODO remove?
+					
 					((FuelBarrel) element).explode(nextMovablePosition);
 					
 				}
 				
-				ge.removeElement( (ImageTile) element);
+				//Coloca a imagem a queimado
+				((Burnable) element).setBurnt(true);
+					
 				ge.getScore().decreaseValue((ImageTile) element);
 				
 				
