@@ -47,9 +47,9 @@ public class Fire extends GameElement implements Combustible{
 			Point2D position = element.getPosition();
 
 			List<Point2D> burnPos = position.getNeighbourhoodPoints();
+			
 			Iterator<Point2D> it = burnPos.iterator();
-			
-			
+					
 			while(it.hasNext()) {
 				Point2D setPos = it.next();
 				
@@ -74,23 +74,37 @@ public class Fire extends GameElement implements Combustible{
 		
 		//TODO DEBUG
 		System.out.println("PROBABILITY -> " + probability + " | CHANCE -> " + chance);
-		if(element instanceof FuelBarrel) {
-			((FuelBarrel) element).explode(nextMovablePosition);
-		}else if(!(element instanceof FuelBarrel) && chance <= probability) {
-			ImageTile fire = GameElement.create("Fire", position);
-			ge.addElement(fire);
+		
+		
+		if(chance <= probability) {
+			if(element instanceof FuelBarrel) {
+				
+				((FuelBarrel) element).explode(nextMovablePosition);
+				
+			}else {
+				
+				ImageTile fire = GameElement.create("Fire", position);
+				ge.addElement(fire);
+				
+				
+			}
+			
+			
 		}
+		
 		
 	}	
 	
+	
+	
 	public static void cleanFire(Point2D position, Direction direction) {
 		
-		if(ge.isThereObjectAtPosition(position, e -> e instanceof Burnable) && ge.isThereObjectAtPosition(position, e -> e instanceof Fire)) {
+		ImageTile image = ge.getObjectAtPosition(position, e -> e instanceof Burnable);
+		
+		if(image != null && ge.isThereObjectAtPosition(position, e -> e instanceof Fire)) {
 			
 			ImageTile water = null;
 			water = Water.create(position, direction);
-			
-			ImageTile image = ge.getObjectAtPosition(position, e -> e instanceof Burnable);
 			
 			//Dar os pontos
 			ge.getScore().givePoints(image);
