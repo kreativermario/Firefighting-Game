@@ -31,7 +31,8 @@ public class Fire extends GameElement implements Combustible{
 		return ge.isThereObjectAtPosition(setPos, e -> e instanceof Burnable) && 
 					!ge.isThereObjectAtPosition(setPos, e -> e instanceof Fire) 
 					&& !setPos.equals(firemanPos) && !setPos.equals(nextMovablePosition)
-					&& !ge.isThereObjectAtPosition(setPos, e -> e instanceof ActiveElement);
+					&& !ge.isThereObjectAtPosition(setPos, e -> e instanceof ActiveElement)
+					&& !ge.isThereObjectAtPosition(setPos, e -> e instanceof FiremanBot);
 		
 	}
 	

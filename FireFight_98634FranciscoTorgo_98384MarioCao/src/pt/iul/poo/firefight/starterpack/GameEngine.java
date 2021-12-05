@@ -120,7 +120,9 @@ public class GameEngine implements Observer {
 				break;
 			default:
 				if(Direction.isDirection(key)) {
+					
 					score.setScoreValue(REMOVE_SCORE_PER_PLAY);
+					
 					List<ActiveElement> activeList = selectObjectsList(e -> e instanceof ActiveElement && 
 							e instanceof Movable);
 					
@@ -128,17 +130,16 @@ public class GameEngine implements Observer {
 					
 					object.move(key);
 					
-					List<ActiveElement> botList = selectObjectsList(e -> e instanceof ActiveElement 
-							&& e instanceof FiremanBot);
+					//Mover os FiremanBot
+					
+					List<FiremanBot> botList = selectObjectsList(e -> e instanceof FiremanBot);
 	
-					for(ActiveElement element : botList) {
-						((FiremanBot) element).move();
+					for(FiremanBot element : botList) {
+						element.move();
 					}
-					
-					
-					
-					
+										
 					Plane plane1 = (Plane) plane;
+					
 					if(plane1 != null) {
 						
 						plane1.move();
@@ -166,8 +167,8 @@ public class GameEngine implements Observer {
 		}
 		
 		//TODO Remove
-		debug();
-		levelOver();
+		//debug();
+		checkLevelOver();
 			
 		
 		
@@ -239,24 +240,6 @@ public class GameEngine implements Observer {
 	
 	
 	
-	
-	/**
-	 * Função que devolve o objeto numa certa posição de determinada instância dado um Predicate
-	 * @param position Point2D
-	 * @param filtro Predicate<GameElement> filtro
-	 * @return element T
-	 * */
-	public <T> T getObjectAtPosition(Point2D position, Predicate<GameElement> filtro) {
-		for(ImageTile image : tileList) {
-		
-			GameElement element = (GameElement) image;
-			if(filtro.test(element) && element.getPosition().equals(position))
-				return (T) element;
-		}
-		return null;
-	}
-	
-	
 	private void removeDisappear() {
 		List<ImageTile> gifs = selectObjectsList(e -> e instanceof Disappears);
 		for(int i = 0; i < gifs.size(); i++) {
@@ -266,9 +249,43 @@ public class GameEngine implements Observer {
 	}
 	
 	
+	/**
+	 * Função que devolve o objeto numa certa posição de determinada instância dado um Predicate
+	 * @param position Point2D
+	 * @param filtro Predicate<GameElement> filtro
+	 * @return element T
+	 * */
+	public <T> T getObjectAtPosition(Point2D position, Predicate<GameElement> filtro) {
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile image = it.next();
+			GameElement element = (GameElement) image;
+			if(filtro.test(element) && element.getPosition().equals(position))
+				return (T) element;
+		}
+		return null;
+	}
 	
 	
+	/**
+	 * Função que devolve uma lista de objetos de uma certa instância dado um Predicate<GameElement>
+	 * @param filtro Predicate<GameElement> filtro
+	 * @return list List<T>
+	 * */
+	public <T> List<T> selectObjectsList(Predicate<GameElement> filtro){
+		List<T> list = new ArrayList<>();
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile image = it.next();
+			GameElement element = (GameElement) image;
+			if(filtro.test(element))
+				list.add((T) image);
+		}
+		
+		return list;
+	}
 	
+
 	/**
 	 * Função que diz se o objeto de uma determinada instancia existe numa certa posição
 	 * @param position Point2D
@@ -276,38 +293,17 @@ public class GameEngine implements Observer {
 	 * @return boolean
 	 * */
 	public boolean isThereObjectAtPosition(Point2D position, Predicate<GameElement> filtro) {
-		for(ImageTile image : tileList) {
+		
+		Iterator<ImageTile> it = tileList.iterator();
+		while(it.hasNext()) {
+			ImageTile image = it.next();
 			GameElement element = (GameElement) image;
 			if(filtro.test(element) && element.getPosition().equals(position))
 				return true;
+			
 		}
 		return false;
-		
-	}
 	
-	
-	private void levelOver() {
-		List<ImageTile> fireList = selectObjectsList(e -> e instanceof Fire);
-		//TODO DO NOT DELETE USE FOR LEVELS!!!!
-		if(fireList.size() == 0) {
-			playerHighestScore = null;		//Reset do high score do player para cada nivel
-			gui.setMessage("Level Over!");
-			score.saveToFile(playerName);
-			List<Score> top5 = Score.getTop5Score(levelNumber);
-			//TODO DEBUG
-			System.out.println(top5);
-			String str = "TOP SCORE: " + System.lineSeparator();
-			for(int i = 1; i <= top5.size(); i++) {
-				Score score = top5.get(i-1);
-				str += i + ". " + score.getPlayerName() + " - " + score.getScoreValue() + System.lineSeparator();
-			}
-			
-			gui.setMessage(str);
-			Score.saveTop5File(top5);
-			
-			nextLevel();
-		}
-		
 	}
 	
 	
@@ -320,22 +316,6 @@ public class GameEngine implements Observer {
 		gui.removeImage(image);
 	}
 	
-	
-	
-	/**
-	 * Função que devolve uma lista de objetos de uma certa instância dado um Predicate<GameElement>
-	 * @param filtro Predicate<GameElement> filtro
-	 * @return list List<T>
-	 * */
-	public <T> List<T> selectObjectsList(Predicate<GameElement> filtro){
-		List<T> list = new ArrayList<>();
-		for(ImageTile image : tileList) {
-			GameElement element = (GameElement) image;
-			if(filtro.test(element))
-				list.add((T) image);
-		}
-		return list;
-	}
 	
 
 	/**
@@ -431,6 +411,36 @@ public class GameEngine implements Observer {
 		
 		
 	}
+	
+	
+	
+	private void checkLevelOver() {
+		List<ImageTile> fireList = selectObjectsList(e -> e instanceof Fire);
+		
+		//TODO DO NOT DELETE USE FOR LEVELS!!!!
+		
+		if(fireList.size() == 0) {
+			playerHighestScore = null;		//Reset do high score do player para cada nivel
+			gui.setMessage("Level Over!");
+			score.saveToFile(playerName);
+			List<Score> top5 = Score.getTop5Score(levelNumber);
+			//TODO DEBUG
+			System.out.println(top5);
+			String str = "TOP SCORE: " + System.lineSeparator();
+			for(int i = 1; i <= top5.size(); i++) {
+				Score score = top5.get(i-1);
+				str += i + ". " + score.getPlayerName() + " - " + score.getScoreValue() + System.lineSeparator();
+			}
+			
+			gui.setMessage(str);
+			Score.saveTop5File(top5);
+			
+			nextLevel();
+		}
+		
+	}
+	
+	
 	
 	/**
 	 * Método que muda o nível/mapa ou acaba o jogo

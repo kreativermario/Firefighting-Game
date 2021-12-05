@@ -76,12 +76,13 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 			//Atualizar a direction do Bulldozer
 			this.setDirection(direction);
 			
-			demolish(newPosition);
+			this.demolish(newPosition);
 			ge.getFireman().setPosition(newPosition);
-			setPosition(newPosition);
+			this.setPosition(newPosition);
 			
 			Fire.propagateFire(newPosition);
 			Fire.addBurnTime(newPosition);
+			
 		}
 	
 	}
@@ -111,6 +112,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 		if(ge.isThereObjectAtPosition(p, e -> e instanceof Fire)) return false;
 		if(ge.isThereObjectAtPosition(p, e -> e instanceof Drivable)) return false;
 		return true;
+		
 	}
 	
 	/**

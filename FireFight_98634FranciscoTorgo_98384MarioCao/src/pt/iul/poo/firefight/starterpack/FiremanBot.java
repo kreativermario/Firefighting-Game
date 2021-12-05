@@ -22,32 +22,21 @@ import pt.iul.ista.poo.utils.Vector2D;
 * @since 2021-11-01
 */
 
-public class FiremanBot extends GameElement implements ActiveElement, Directionable{
-	//TODO Remover bulldozer
-	private boolean isActive;
+public class FiremanBot extends GameElement implements Directionable{
+
 	private Direction dir;
 	
 	/**
-	* Construtor Fireman
+	* Construtor FiremanBot
 	*/
 	public FiremanBot(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
-		this.isActive = true;
 		this.dir = null;
 	}
 	
-	/**
-	* Construtor Fireman com atribuição de Active
-	*/
-	public FiremanBot(String name, Point2D position, int layerValue, boolean isActive) {
-		super(name, position, layerValue);
-		this.isActive = isActive;
-		this.dir = null;
-	}
 	
-	public FiremanBot(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
+	public FiremanBot(String name, Point2D position, int layerValue, Direction direction) {
 		super(name, position, layerValue);
-		this.isActive = isActive;
 		this.dir = direction;
 	}
 	
@@ -143,18 +132,6 @@ public class FiremanBot extends GameElement implements ActiveElement, Directiona
 		return "Fireman";	
 	}
 
-
-
-	@Override
-	public boolean isActive() {
-		return isActive;
-	}
-
-
-	@Override
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
-	}
 	
 	@Override
 	public void setDirection(Direction direction) {
