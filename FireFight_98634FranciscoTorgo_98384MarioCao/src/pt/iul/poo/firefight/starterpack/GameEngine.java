@@ -111,9 +111,11 @@ public class GameEngine implements Observer {
 				ActiveElement bulldozer = (ActiveElement) getActive(bulldozerList);
 				
 				if(bulldozer != null) {
+					
 					gui.addImage(fireman);
 					fireman.setActive(true);
 					bulldozer.setActive(false);
+					
 				}
 				break;
 			default:
@@ -127,26 +129,33 @@ public class GameEngine implements Observer {
 					
 					Plane plane1 = (Plane) plane;
 					if(plane1 != null) {
+						
 						plane1.move();
+						
 					}
-					//TODO mover isto para dentro do fireman?
-					//Fire.addBurnTime(newPosition);
 
 				}
 		
 		
 		}
+		
+		//Dá display do highest score do player se já tinha jogado anteriormente
 		playerHighestScore = Score.getPlayerHighscore(playerName, levelNumber);
+		
 		if(playerHighestScore != null) {		
+			
 			int highestScore = playerHighestScore.getScoreValue();
 			gui.setStatusMessage("Level nº " + levelNumber + " | " + "Score: " 
 			+ score.getScoreValue() + " | Player Name: " + playerName + " | Your Highscore: " + highestScore);
+			
 		}else {
+			
 			gui.setStatusMessage("Level nº " + levelNumber + " | " + "Score: " + score.getScoreValue() + " | Player Name: " + playerName);
+			
 		}
 		
 		//TODO Remove
-		//debug();
+		debug();
 		levelOver();
 			
 		
@@ -353,13 +362,15 @@ public class GameEngine implements Observer {
 	* @param image ImageTile Imagem do elemento a verificar.
 	* @return boolean Quando existe true, em contrario false.
 	*/
-	private boolean isThereElement(ImageTile image) {
+	public boolean isThereElement(ImageTile image) {
 		for(ImageTile element : tileList) {
 			if(element.getPosition().equals(image.getPosition()) && element.getName().equals(image.getName()) && element.getLayer() == element.getLayer())
 				return true;
 		}
 		return false;
 	}
+	
+	
 	
 
 	/**
@@ -426,16 +437,22 @@ public class GameEngine implements Observer {
 		}
 			
 	}
-
+	
+	
+	public void setFireman(Fireman fireman) {
+		this.fireman = fireman;
+	}
+	
 	
 	/** 
 	 * 	Método fábrica
 	 * 	Verifica se o elemento é uma das opções e
-	 * 	adiciona ao mapa a carregar na GUI
+	 * 	cria o objeto
 	 * 	@param element char
 	 * 	@param position Point2D
+	 *  @return obj ImageTile
 	 * */
-	private void addFromChar(char element, Point2D position) {
+	private ImageTile addFromChar(char element, Point2D position) {
 		GameElement obj = null;
 		switch(element) {
 			case 'a':
@@ -460,88 +477,12 @@ public class GameEngine implements Observer {
 				throw new IllegalArgumentException("Erro a dar load ao mapa");
 		}
 		if(obj != null && !tileList.contains(obj))
-			tileList.add(obj);
+			return obj;
+		return null;
 						
 	}
 	
-	
-	/** Método Fábrica
-	 * 	Verifica se o elemento é uma das opções e
-	 * 	adiciona ao mapa a carregar na GUI
-	 * 	@param element String
-	 * 	@param position Point2D
-	 * */
-	public void addFromString(String element, Point2D position) {
-		GameElement obj = null;
-		switch(element) {
-			case "Fireman":
-				if(!isThereObjectAtPosition(position, e -> e instanceof Fire)) {
-					fireman = new Fireman("fireman", position, 3);
-					obj = fireman;
-				}else throw new IllegalArgumentException("Fireman não pode spawnar em cima de um fogo");
-				break;
-			case "Bulldozer":
-				if(!isThereObjectAtPosition(position, e -> e instanceof Fire)) {
-					obj = new Bulldozer("bulldozer", position, 3);
-				}else throw new IllegalArgumentException("Bulldozer não pode spawnar em cima de um fogo");	
-				break;
-			case "Fire":
-				if(!isThereObjectAtPosition(position, e -> e instanceof Fireman) 
-						&& !isThereObjectAtPosition(position, e -> e instanceof Bulldozer)) {
-					obj = new Fire("fire", position, 1);
-				}else throw new IllegalArgumentException("Fogo não pode spawnar em cima de um fireman ou bulldozer");	
-				break;
-			case "Burnt":
-				obj = new Burnt("burnt", position, 0);
-				break;
-			case "BurntEucaliptus":
-				obj = new Eucaliptus("burnteucaliptus", position, 0, true);
-				break;
-			case "BurntGrass":
-				obj = new Grass("burntgrass", position, 0, true);
-				break;
-			case "BurntPine":
-				obj = new Pine("burntpine", position, 0, true);
-				break;
-			case "Eucaliptus":
-				obj = new Eucaliptus("eucaliptus", position, 0);
-				break;
-			case "Explosion":
-				obj = new Explosion("explosion", position, 3);
-				break;
-			case "Grass":
-				obj = new Grass("grass", position, 0);
-				break;
-			case "Land":
-				obj = new Land("land", position, 0);
-				break;
-			case "Pine":
-				obj = new Pine("pine", position, 0);
-				break;
-			case "Abies":
-				obj = new Abies("abies", position, 0);
-				break;
-			case "FuelBarrel":
-				obj = new FuelBarrel("fuelbarrel", position, 0);
-				break;
-			case "BurntFuelBarrel":
-				obj = new FuelBarrel("fuelbarrel", position, 0, true);
-				break;
-			case "BurntAbies":
-				obj = new Abies("abies", position, 0, true);
-				break;
-			case "Water":
-				obj = new Water("water", position, 2);
-				break;
-			default:
-				throw new IllegalArgumentException("Erro a dar load ao mapa");
-		}
-		if(obj != null && !tileList.contains(obj))
-			tileList.add(obj);
-		
-	}
-	
-	
+
 	/** 
 	 * 	Dá load de um mapa que é ficheiro txt
 	 * 	para o tileList (Vetor) e GUI.
@@ -560,8 +501,11 @@ public class GameEngine implements Observer {
 					Point2D position = new Point2D(xMove,yMove);
 					String element = line[0];
 					//TODO Debug
-					System.out.println("Y -> " + y + " " + element + " " + xMove + " " + yMove); 		
-					addFromString(element, position);
+					System.out.println("Y -> " + y + " " + element + " " + xMove + " " + yMove); 	
+					
+					ImageTile image = GameElement.addFromString(element, position);
+					if(image != null)
+						tileList.add(image);	
 					
 				}else {
 					String line = sc.nextLine();
@@ -569,7 +513,10 @@ public class GameEngine implements Observer {
 					for(int x = 0; x < line.length(); x++) {
 						char element = line.charAt(x);
 						Point2D position = new Point2D(x,y);
-						addFromChar(element, position);
+						ImageTile image = addFromChar(element, position);
+						if(image != null)
+							tileList.add(image);	
+						
 					}
 					y++;
 					

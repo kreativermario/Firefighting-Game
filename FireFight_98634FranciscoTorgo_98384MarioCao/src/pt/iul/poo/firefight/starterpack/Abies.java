@@ -33,7 +33,7 @@ public class Abies extends GameElement implements Burnable, Updatable{
 
 	/**
 	* ToString do Burnt
-	* @return String com "Eucaliptus".
+	* @return String com "Abies".
 	*/
 	
 	//TODO Debug
