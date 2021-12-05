@@ -21,7 +21,7 @@ import pt.iul.ista.poo.utils.Point2D;
 public class Fireman extends GameElement implements Movable, ActiveElement, Directionable{
 	//TODO Remover bulldozer
 	private boolean isActive;
-	private Direction direction;
+	private Direction dir;
 	
 	/**
 	* Construtor Fireman
@@ -29,7 +29,7 @@ public class Fireman extends GameElement implements Movable, ActiveElement, Dire
 	public Fireman(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 		this.isActive = true;
-		this.direction = null;
+		this.dir = null;
 	}
 	
 	/**
@@ -38,21 +38,21 @@ public class Fireman extends GameElement implements Movable, ActiveElement, Dire
 	public Fireman(String name, Point2D position, int layerValue, boolean isActive) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
-		this.direction = null;
+		this.dir = null;
 	}
 	
 	public Fireman(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
-		this.direction = direction;
+		this.dir = direction;
 	}
 	
 
 	
 	@Override
 	public String getName() {
-		if(direction != null) {
-			switch(this.direction) {
+		if(dir != null) {
+			switch(this.dir) {
 				case LEFT:
 					return "fireman_left";
 				case RIGHT:
@@ -135,7 +135,7 @@ public class Fireman extends GameElement implements Movable, ActiveElement, Dire
 	
 	@Override
 	public void setDirection(Direction direction) {
-		this.direction = direction;
+		this.dir = direction;
 	}
 	
 

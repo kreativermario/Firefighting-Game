@@ -18,7 +18,7 @@ import pt.iul.ista.poo.utils.Point2D;
 * @since 2021-11-01
 */
 
-public class FiremanBot extends GameElement implements Movable, ActiveElement, Directionable{
+public class FiremanBot extends GameElement implements ActiveElement, Directionable{
 	//TODO Remover bulldozer
 	private boolean isActive;
 	private Direction direction;
@@ -65,9 +65,18 @@ public class FiremanBot extends GameElement implements Movable, ActiveElement, D
 	}
 	
 	// Move numa direcao
-	public void move(int keyCode) {
+	public void move() {
+			
 		
-		Direction direction = Direction.directionFor(keyCode);
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
 		GameEngine ge = GameEngine.getInstance();
 		

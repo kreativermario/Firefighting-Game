@@ -21,32 +21,32 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 	
 	private static final GameEngine ge = GameEngine.getInstance();
 	private boolean isActive;
-	private Direction direction;
+	private Direction dir;
 	
 	
 	public Bulldozer(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 		isActive = false;
-		this.direction = null;
+		this.dir = null;
 	}
 	
 	
 	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
-		this.direction = direction;
+		this.dir = direction;
 	}
 	
 	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
-		this.direction = null;
+		this.dir = null;
 	}
 	
 	@Override
 	public String getName() {
-		if(this.direction != null) {
-			switch(this.direction) {
+		if(this.dir != null) {
+			switch(this.dir) {
 				case UP:
 					return "bulldozer_up";
 				case DOWN:
@@ -141,7 +141,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 
 	@Override
 	public void setDirection(Direction direction) {
-		this.direction = direction;
+		this.dir = direction;
 	}
 	
 	
