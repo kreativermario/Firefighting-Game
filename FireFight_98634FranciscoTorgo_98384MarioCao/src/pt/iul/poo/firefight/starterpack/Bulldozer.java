@@ -17,7 +17,7 @@ import pt.iul.ista.poo.utils.Point2D;
 * @since 2021-11-01
 */
 
-public class Bulldozer extends GameElement implements Movable, ActiveElement{
+public class Bulldozer extends GameElement implements Movable, ActiveElement, Directionable{
 	
 	private static final GameEngine ge = GameEngine.getInstance();
 	private boolean isActive;
@@ -27,7 +27,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement{
 	public Bulldozer(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 		isActive = false;
-		this.direction = Direction.UP;
+		this.direction = null;
 	}
 	
 	
@@ -40,19 +40,22 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement{
 	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
+		this.direction = null;
 	}
 	
 	@Override
 	public String getName() {
-		switch(this.direction) {
-			case UP:
-				return "bulldozer_up";
-			case DOWN:
-				return "bulldozer_down";
-			case LEFT:
-				return "bulldozer_left";
-			case RIGHT:
-				return "bulldozer_right";
+		if(this.direction != null) {
+			switch(this.direction) {
+				case UP:
+					return "bulldozer_up";
+				case DOWN:
+					return "bulldozer_down";
+				case LEFT:
+					return "bulldozer_left";
+				case RIGHT:
+					return "bulldozer_right";
+			}	
 		}
 		return "bulldozer";		
 	}
@@ -136,6 +139,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement{
 		this.isActive = isActive;
 	}
 
+	@Override
 	public void setDirection(Direction direction) {
 		this.direction = direction;
 	}

@@ -8,13 +8,13 @@ import pt.iul.ista.poo.utils.Point2D;
 //Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
 //Isso sera' de evitar na versao a serio do projeto
 
-public class Water extends GameElement implements Disappears{
+public class Water extends GameElement implements Disappears, Directionable{
 	
 	private Direction direction;
 	
 	public Water(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
-		this.direction = Direction.RIGHT;
+		this.direction = null;
 	}	
 	
 	public Water(String name, Point2D position, int layerValue, Direction direction) {
@@ -31,18 +31,19 @@ public class Water extends GameElement implements Disappears{
 	
 	@Override
 	public String getName() {
-		switch(this.direction) {
-		case UP:
-			return "water_up";
-		case DOWN:
-			return "water_down";
-		case LEFT:
-			return "water_left";
-		case RIGHT:
-			return "water_right";
-		default:
-			return "water";
-		}	
+		if(this.direction != null) {
+			switch(this.direction) {
+				case UP:
+					return "water_up";
+				case DOWN:
+					return "water_down";
+				case LEFT:
+					return "water_left";
+				case RIGHT:
+					return "water_right";				
+			}	
+		}
+		return "water";
 	}
 	
 	//TODO Debug

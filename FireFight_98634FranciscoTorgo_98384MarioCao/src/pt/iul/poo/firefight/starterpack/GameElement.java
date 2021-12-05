@@ -111,7 +111,8 @@ public abstract class GameElement implements ImageTile {
 		return this.getName().equals(other.getName()) && this.getPosition().equals(obj);
 	}
 	
-	/** Método Fábrica
+	
+	/** Método Fábrica para o load do Mapa
 	 * 	Verifica se o elemento é uma das opções e
 	 * 	cria o objeto
 	 * 	@param element String

@@ -33,22 +33,22 @@ public class FuelBarrel extends GameElement implements Burnable, Updatable, Comb
 		List<Point2D> wideNeighbours = this.getPosition().getWideNeighbourhoodPoints();
 		Iterator<Point2D> it = wideNeighbours.iterator();
 		GameEngine ge = GameEngine.getInstance();
-		ge.addElement(new Explosion("explosion", this.getPosition(), 3));
-		this.setBurnt(true);
-		//ge.addElement(new FuelBarrel("fuelbarrel", this.getPosition(), 0, true));
+		
+		ge.addElement(GameElement.create("Explosion", this.getPosition()));	//Cria a explosao
+		
+		this.setBurnt(true);		//Coloca o barril a queimado
+		
 		while(it.hasNext()) {
 			Point2D setPos = it.next();
 			
 			if(Fire.canSetFire(setPos, nextMovablePosition)) {
-				//TODO fabrica objetos
-				ge.addElement(new Fire("fire", setPos, 1));
+
+				ge.addElement(GameElement.create("Fire", setPos));	//Adiciona os fogos
+
 			}
-			
-			
+				
 		}
-		
-		
-		
+
 	}
 	
 	

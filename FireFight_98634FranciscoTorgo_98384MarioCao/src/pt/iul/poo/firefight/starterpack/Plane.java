@@ -46,17 +46,22 @@ public class Plane extends GameElement implements ActiveElement{
 	public void move() {
 		Direction UP = Direction.UP;
 		
-		
-		
 		for(int i = 0; i <= 2; i++) {
+			
 			Point2D newPosition = super.getPosition().plus(UP.asVector());
 			Point2D botPosition = super.getPosition().plus(Direction.DOWN.asVector());
+			
 			if(canMoveTo(newPosition)) {
+				
 				Fire.cleanFire(newPosition, UP);
 				Fire.cleanFire(botPosition, UP);	
+				
 				setPosition(newPosition);
+				
 			}else {
+				
 				ge.removeElement(this);
+				
 			}
 			
 		}
@@ -84,7 +89,7 @@ public class Plane extends GameElement implements ActiveElement{
 	//TODO Debug
 	@Override
 	public String toString() {
-		return "Fireman";	
+		return "Plane";	
 	}
 
 
