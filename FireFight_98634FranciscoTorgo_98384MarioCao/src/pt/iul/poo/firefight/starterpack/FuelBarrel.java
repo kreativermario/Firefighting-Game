@@ -38,8 +38,6 @@ public class FuelBarrel extends GameElement implements Burnable, Updatable, Comb
 		while(it.hasNext()) {
 			Point2D setPos = it.next();
 			
-			Burnable element = ge.getObjectAtPosition(setPos, e -> e instanceof Burnable);
-			
 			if(Fire.canSetFire(setPos, nextMovablePosition)) {
 				//TODO fabrica objetos
 				ge.addElement(new Fire("fire", setPos, 1));

@@ -1,13 +1,6 @@
 package pt.iul.poo.firefight.starterpack;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
+import java.util.*;
 
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
@@ -47,9 +40,6 @@ public class Fire extends GameElement implements Combustible{
 	public static void propagateFire(Point2D nextMovablePosition) {
 		
 		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Fire);
-		
-		//Não propagar fogo se o barril de fogo já estiver queimado
-		//fires.removeIf(e -> e instanceof FuelBarrel && ((FuelBarrel) e).isBurnt() == true);
 
 		for(int i = 0; i < fires.size(); i++) {
 			ImageTile element =  fires.get(i);

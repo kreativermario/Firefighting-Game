@@ -1,9 +1,6 @@
 package pt.iul.poo.firefight.starterpack;
 
-import java.util.Iterator;
-import java.util.List;
 
-import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Point2D;
 
 //Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
