@@ -1,3 +1,0 @@
-Level name: level2
-Player name:hugo
-Score: 4050

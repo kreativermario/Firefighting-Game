@@ -46,10 +46,10 @@ public class Fire extends GameElement implements Combustible{
 	
 	public static void propagateFire(Point2D nextMovablePosition) {
 		
-		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Combustible);
+		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Fire);
 		
 		//Não propagar fogo se o barril de fogo já estiver queimado
-		fires.removeIf(e -> e instanceof FuelBarrel && ((FuelBarrel) e).isBurnt() == true);
+		//fires.removeIf(e -> e instanceof FuelBarrel && ((FuelBarrel) e).isBurnt() == true);
 
 		for(int i = 0; i < fires.size(); i++) {
 			ImageTile element =  fires.get(i);

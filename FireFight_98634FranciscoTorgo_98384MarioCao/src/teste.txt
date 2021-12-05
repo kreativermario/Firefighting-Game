@@ -1,2 +1,0 @@
-Player name:aa
-Score: 2250
