@@ -129,9 +129,8 @@ public class GameEngine implements Observer {
 					if(plane1 != null) {
 						plane1.move();
 					}
-					
-					//TODO ver se coloco aqui ou no Fireman
-					//Fire.addBurnTime();
+					//TODO mover isto para dentro do fireman?
+					//Fire.addBurnTime(newPosition);
 
 				}
 		

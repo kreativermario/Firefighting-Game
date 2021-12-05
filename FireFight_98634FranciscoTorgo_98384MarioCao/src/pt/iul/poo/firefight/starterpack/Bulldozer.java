@@ -66,6 +66,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement{
 			ge.getFireman().setPosition(newPosition);
 			setPosition(newPosition);
 			Fire.propagateFire(newPosition);
+			Fire.addBurnTime(newPosition);
 		}
 	
 	}
