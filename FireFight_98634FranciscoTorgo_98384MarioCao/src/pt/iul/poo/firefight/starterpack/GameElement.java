@@ -21,32 +21,50 @@ public abstract class GameElement implements ImageTile {
 	public static ImageTile create(String name, Point2D position) {
 		ImageTile obj = null;
 		switch(name) {
-			case "Fireman":
-				obj = new Fireman("fireman", position, 3);
+			case "Abies":
+				obj = new Abies("abies", position, 0);
 				break;
 			case "Bulldozer":
 				obj = new Bulldozer("bulldozer", position, 3);
 				break;
-			case "Fire":
-				obj = new Fire("fire", position, 1);
-				break;
 			case "Burnt":
 				obj = new Burnt("burnt", position, 0);
 				break;
+			case "BurntAbies":
+				obj = new Abies("abies", position, 0, true);
+				break;
 			case "BurntEucaliptus":
 				obj = new Eucaliptus("burnteucaliptus", position, 0, true);
+				break;
+			case "BurntFuelBarrel":
+				obj = new FuelBarrel("fuelbarrel", position, 0, true);
 				break;
 			case "BurntGrass":
 				obj = new Grass("burntgrass", position, 0, true);
 				break;
 			case "BurntPine":
 				obj = new Pine("burntpine", position, 0, true);
-				break;
+				break;		
 			case "Eucaliptus":
 				obj = new Eucaliptus("eucaliptus", position, 0);
 				break;
 			case "Explosion":
 				obj = new Explosion("explosion", position, 3);
+				break;
+			case "Fire":
+				obj = new Fire("fire", position, 1);
+				break;
+			case "FiremanBot":
+				obj = new FiremanBot("firemanbot", position, 3);
+				break;
+			case "Fireman":
+				obj = new Fireman("fireman", position, 3);
+				break;
+			case "FuelBarrel":
+				obj = new FuelBarrel("fuelbarrel", position, 0);
+				break;	
+			case "FireTruck":
+				obj = new FireTruck("fueltruck", position, 3);
 				break;
 			case "Grass":
 				obj = new Grass("grass", position, 0);
@@ -56,19 +74,7 @@ public abstract class GameElement implements ImageTile {
 				break;
 			case "Pine":
 				obj = new Pine("pine", position, 0);
-				break;
-			case "Abies":
-				obj = new Abies("abies", position, 0);
-				break;
-			case "FuelBarrel":
-				obj = new FuelBarrel("fuelbarrel", position, 0);
-				break;
-			case "BurntFuelBarrel":
-				obj = new FuelBarrel("fuelbarrel", position, 0, true);
-				break;
-			case "BurntAbies":
-				obj = new Abies("abies", position, 0, true);
-				break;
+				break;	
 			case "Water":
 				obj = new Water("water", position, 2);
 				break;

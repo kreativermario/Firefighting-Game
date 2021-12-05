@@ -107,14 +107,14 @@ public class GameEngine implements Observer {
 				}
 				break;
 			case KeyEvent.VK_ENTER:
-				List<ActiveElement> bulldozerList = selectObjectsList(e -> e instanceof ActiveElement && e instanceof Bulldozer);
-				ActiveElement bulldozer = (ActiveElement) getActive(bulldozerList);
+				List<ActiveElement> drivableList = selectObjectsList(e -> e instanceof ActiveElement && e instanceof Drivable);
+				ActiveElement drivable  = (ActiveElement) getActive(drivableList);
 				
-				if(bulldozer != null) {
+				if(drivable != null) {
 					
 					gui.addImage(fireman);
 					fireman.setActive(true);
-					bulldozer.setActive(false);
+					drivable.setActive(false);
 					
 				}
 				break;
@@ -123,9 +123,20 @@ public class GameEngine implements Observer {
 					score.setScoreValue(REMOVE_SCORE_PER_PLAY);
 					List<ActiveElement> activeList = selectObjectsList(e -> e instanceof ActiveElement && 
 							e instanceof Movable);
+					
 					Movable object = (Movable) getActive(activeList);
 					
 					object.move(key);
+					
+					List<ActiveElement> botList = selectObjectsList(e -> e instanceof ActiveElement 
+							&& e instanceof FiremanBot);
+	
+					for(ActiveElement element : botList) {
+						((FiremanBot) element).move();
+					}
+					
+					
+					
 					
 					Plane plane1 = (Plane) plane;
 					if(plane1 != null) {

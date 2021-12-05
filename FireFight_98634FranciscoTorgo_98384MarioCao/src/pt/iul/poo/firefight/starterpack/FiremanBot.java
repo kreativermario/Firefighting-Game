@@ -1,7 +1,11 @@
 package pt.iul.poo.firefight.starterpack;
 
+import java.util.List;
+
+import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
+import pt.iul.ista.poo.utils.Vector2D;
 
 // Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
 // Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
@@ -21,7 +25,7 @@ import pt.iul.ista.poo.utils.Point2D;
 public class FiremanBot extends GameElement implements ActiveElement, Directionable{
 	//TODO Remover bulldozer
 	private boolean isActive;
-	private Direction direction;
+	private Direction dir;
 	
 	/**
 	* Construtor Fireman
@@ -29,7 +33,7 @@ public class FiremanBot extends GameElement implements ActiveElement, Directiona
 	public FiremanBot(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 		this.isActive = true;
-		this.direction = null;
+		this.dir = null;
 	}
 	
 	/**
@@ -38,21 +42,21 @@ public class FiremanBot extends GameElement implements ActiveElement, Directiona
 	public FiremanBot(String name, Point2D position, int layerValue, boolean isActive) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
-		this.direction = null;
+		this.dir = null;
 	}
 	
 	public FiremanBot(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
-		this.direction = direction;
+		this.dir = direction;
 	}
 	
 
 	
 	@Override
 	public String getName() {
-		if(direction != null) {
-			switch(this.direction) {
+		if(dir != null) {
+			switch(this.dir) {
 				case LEFT:
 					return "firemanbot_left";
 				case RIGHT:
@@ -67,42 +71,51 @@ public class FiremanBot extends GameElement implements ActiveElement, Directiona
 	// Move numa direcao
 	public void move() {
 			
+		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Fire);
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		Point2D newPosition = super.getPosition().plus(direction.asVector());
-		GameEngine ge = GameEngine.getInstance();
-		
-		//Se houver fogo limpa
-		if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
+		if(!fires.isEmpty()) {
+			double minDistance = 0;
+			Point2D minPos = null;
 			
-			Fire.cleanFire(newPosition, direction);	
-			
-		}else if (canMoveTo(newPosition)){
-			
-			this.setDirection(direction);
-			setPosition(newPosition);
-			Fire.propagateFire(newPosition);
-			Fire.addBurnTime(newPosition);
-			
-			//Se houver Bulldozer, ou seja, fireman vai entrar no Bulldozer
-			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Bulldozer)) {
+			for(int i = 0; i < fires.size(); i++) {
+				Point2D firePos = fires.get(i).getPosition();
+				double distance = this.getPosition().distanceTo(firePos);
+				if(i == 0) {
+					minPos = firePos;
+					minDistance = distance;
+				}
+				if(distance <= minDistance) {
+					minDistance = distance;
+					minPos = firePos;
+				}
+					
 				
-				ge.removeImage(this);  //Retira o fireman do GUI mas nao do tileList
-				
-				this.setActive(false);	//Coloca o fireman a inativo
-				
-				((Bulldozer) ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer)).setActive(true);		//Coloca o Bulldozer a ativo
 			}
+			
+			
+			Direction direction = this.getPosition().directionTo(minPos);
+			
+			Point2D newPosition = super.getPosition().plus(direction.asVector());
+			GameEngine ge = GameEngine.getInstance();
+			
+			//Se houver fogo limpa
+			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
 				
+				Fire.cleanFire(newPosition, direction);	
+				
+			}else if (canMoveTo(newPosition)){
+				
+				this.setDirection(direction);
+				setPosition(newPosition);
+
+			}
+			
+		
+			
 		}
+		
+	
 	
 	}
 	
@@ -115,6 +128,7 @@ public class FiremanBot extends GameElement implements ActiveElement, Directiona
 		if (p.getY() < 0) return false;
 		if (p.getX() >= GameEngine.GRID_WIDTH) return false;
 		if (p.getY() >= GameEngine.GRID_HEIGHT) return false;
+		if (ge.isThereObjectAtPosition(p, e -> e instanceof Fireman || e instanceof Bulldozer)) return false;
 		return true;
 	}
 	
@@ -144,7 +158,7 @@ public class FiremanBot extends GameElement implements ActiveElement, Directiona
 	
 	@Override
 	public void setDirection(Direction direction) {
-		this.direction = direction;
+		this.dir = direction;
 	}
 	
 

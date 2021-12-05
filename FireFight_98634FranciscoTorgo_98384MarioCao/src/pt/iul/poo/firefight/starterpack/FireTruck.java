@@ -1,5 +1,8 @@
 package pt.iul.poo.firefight.starterpack;
 
+import java.util.Iterator;
+import java.util.List;
+
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
@@ -17,27 +20,27 @@ import pt.iul.ista.poo.utils.Point2D;
 * @since 2021-11-01
 */
 
-public class Bulldozer extends GameElement implements Movable, ActiveElement, Directionable, Drivable{
+public class FireTruck extends GameElement implements Movable, ActiveElement, Directionable, Drivable{
 	
 	private static final GameEngine ge = GameEngine.getInstance();
 	private boolean isActive;
 	private Direction dir;
 	
 	
-	public Bulldozer(String name, Point2D position, int layerValue) {
+	public FireTruck(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
 		isActive = false;
 		this.dir = null;
 	}
 	
 	
-	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
+	public FireTruck(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
 		this.dir = direction;
 	}
 	
-	public Bulldozer(String name, Point2D position, int layerValue, boolean isActive) {
+	public FireTruck(String name, Point2D position, int layerValue, boolean isActive) {
 		super(name, position, layerValue);
 		this.isActive = isActive;
 		this.dir = null;
@@ -47,17 +50,13 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 	public String getName() {
 		if(this.dir != null) {
 			switch(this.dir) {
-				case UP:
-					return "bulldozer_up";
-				case DOWN:
-					return "bulldozer_down";
 				case LEFT:
-					return "bulldozer_left";
+					return "firetruck_left";
 				case RIGHT:
-					return "bulldozer_right";
+					return "firetruck_right";
 			}	
 		}
-		return "bulldozer";		
+		return "firetruck";		
 	}
 	
 
@@ -76,7 +75,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 			//Atualizar a direction do Bulldozer
 			this.setDirection(direction);
 			
-			demolish(newPosition);
+			cleanFire(direction, newPosition);
 			ge.getFireman().setPosition(newPosition);
 			setPosition(newPosition);
 			
@@ -86,13 +85,17 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 	
 	}
 	
-	private void demolish(Point2D newPosition) {
+	
+	//TODO como assim perpendicular ao movimento?
+	private void cleanFire(Direction direction, Point2D position) {
+		List<Point2D> fires = position.getFrontRect(direction, 3, 2);
 		
-		ImageTile image =  ge.getObjectAtPosition(newPosition, e -> e instanceof Burnable);
-		if(!ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) && image != null) {
-			ge.removeElement(image);
-			ge.addElement(new Land("land", newPosition, 0));
+		Iterator<Point2D> it = fires.iterator();
+		while(it.hasNext()) {
+			Point2D setPos = it.next();
+			Fire.cleanFire(setPos, direction);
 		}
+
 		
 	}
 

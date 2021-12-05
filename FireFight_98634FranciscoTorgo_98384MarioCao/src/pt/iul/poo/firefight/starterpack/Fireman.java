@@ -84,13 +84,13 @@ public class Fireman extends GameElement implements Movable, ActiveElement, Dire
 			Fire.addBurnTime(newPosition);
 			
 			//Se houver Bulldozer, ou seja, fireman vai entrar no Bulldozer
-			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Bulldozer)) {
+			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Drivable && e instanceof ActiveElement)) {
 				
 				ge.removeImage(this);  //Retira o fireman do GUI mas nao do tileList
 				
 				this.setActive(false);	//Coloca o fireman a inativo
 				
-				((Bulldozer) ge.getObjectAtPosition(newPosition, e -> e instanceof Bulldozer)).setActive(true);		//Coloca o Bulldozer a ativo
+				((ActiveElement) ge.getObjectAtPosition(newPosition, e -> e instanceof Drivable)).setActive(true);		//Coloca o Drivable a ativo
 			}
 				
 		}
