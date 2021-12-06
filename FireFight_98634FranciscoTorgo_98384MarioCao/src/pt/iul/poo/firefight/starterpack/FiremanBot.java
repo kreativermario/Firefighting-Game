@@ -117,7 +117,7 @@ public class FiremanBot extends GameElement implements Directionable{
 		if (p.getY() < 0) return false;
 		if (p.getX() >= GameEngine.GRID_WIDTH) return false;
 		if (p.getY() >= GameEngine.GRID_HEIGHT) return false;
-		if (ge.isThereObjectAtPosition(p, e -> e instanceof Fireman || e instanceof Bulldozer)) return false;
+		if (ge.isThereObjectAtPosition(p, e -> e instanceof Fireman || e instanceof Drivable || e instanceof FiremanBot)) return false;
 		return true;
 	}
 	
