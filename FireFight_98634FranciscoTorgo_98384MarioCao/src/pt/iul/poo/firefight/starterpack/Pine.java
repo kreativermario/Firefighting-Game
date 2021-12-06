@@ -8,7 +8,7 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Pine extends GameElement implements Burnable, Updatable{
 	
-	public final double probability = 0.05;
+	public final double probability = Probability.PINE.getProbability();
 	public final int INITIAL_BURN_TIME = 10;
 	public final String BURNT_NAME = "burntpine";
 	public int burnTime;

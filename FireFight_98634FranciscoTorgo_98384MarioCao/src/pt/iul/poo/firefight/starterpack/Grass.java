@@ -8,7 +8,7 @@ import pt.iul.ista.poo.utils.Point2D;
 
 public class Grass extends GameElement implements Burnable, Updatable{
 	
-	public final double probability = 0.15;
+	public final double probability = Probability.GRASS.getProbability();
 	public final int INITIAL_BURN_TIME = 3;
 	public final String BURNT_NAME = "burntgrass";
 	public int burnTime;

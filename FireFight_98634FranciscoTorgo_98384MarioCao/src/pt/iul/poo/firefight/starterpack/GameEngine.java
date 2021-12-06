@@ -120,7 +120,7 @@ public class GameEngine implements Observer {
 				break;
 			default:
 				if(Direction.isDirection(key)) {
-					
+					//TODO demasiado codigo
 					score.setScoreValue(REMOVE_SCORE_PER_PLAY);
 					
 					List<ActiveElement> activeList = selectObjectsList(e -> e instanceof ActiveElement && 

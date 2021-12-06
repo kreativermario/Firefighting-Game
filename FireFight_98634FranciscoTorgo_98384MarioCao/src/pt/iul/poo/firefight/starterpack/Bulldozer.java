@@ -92,7 +92,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 		ImageTile image =  ge.getObjectAtPosition(newPosition, e -> e instanceof Burnable);
 		if(!ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) && image != null) {
 			ge.removeElement(image);
-			ge.addElement(new Land("land", newPosition, 0));
+			ge.addElement(GameElement.create("Land", newPosition));
 		}
 		
 	}
@@ -110,6 +110,7 @@ public class Bulldozer extends GameElement implements Movable, ActiveElement, Di
 		if (p.getX() >= GameEngine.GRID_WIDTH) return false;
 		if (p.getY() >= GameEngine.GRID_HEIGHT) return false;
 		if(ge.isThereObjectAtPosition(p, e -> e instanceof Fire)) return false;
+		if(ge.isThereObjectAtPosition(p, e -> e instanceof FuelBarrel && ((FuelBarrel) e).isBurnt() == false)) return false;
 		if(ge.isThereObjectAtPosition(p, e -> e instanceof Drivable)) return false;
 		return true;
 		

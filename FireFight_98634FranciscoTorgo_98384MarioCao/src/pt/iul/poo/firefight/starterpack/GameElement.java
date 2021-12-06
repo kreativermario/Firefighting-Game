@@ -157,12 +157,4 @@ public abstract class GameElement implements ImageTile {
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
 }

@@ -7,7 +7,8 @@ import pt.iul.ista.poo.utils.Point2D;
 //Isso sera' de evitar na versao a serio do projeto
 
 public class Eucaliptus extends GameElement implements Burnable, Updatable{
-	public final double probability = 0.10;
+	
+	public final double PROBABILITY = Probability.EUCALIPTUS.getProbability();
 	public final int INITIAL_BURN_TIME = 5;
 	public final String BURNT_NAME = "burnteucaliptus";
 	public int burnTime;
@@ -44,7 +45,7 @@ public class Eucaliptus extends GameElement implements Burnable, Updatable{
 
 	@Override
 	public double getProbability() {
-		return probability;
+		return PROBABILITY;
 	}
 
 	@Override
