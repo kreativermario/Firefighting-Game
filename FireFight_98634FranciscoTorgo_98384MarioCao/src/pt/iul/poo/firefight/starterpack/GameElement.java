@@ -3,6 +3,15 @@ package pt.iul.poo.firefight.starterpack;
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Point2D;
 
+/**
+* <h1>GameElement</h1>
+* Implementação da classe abstrata GameElement
+* 
+* @author Mario Cao-N98384
+* @author Francisco Torgo-N98634
+* @since 2021-11-01
+*/
+
 public abstract class GameElement implements ImageTile {
 
 	private Point2D position;
@@ -11,12 +20,26 @@ public abstract class GameElement implements ImageTile {
 	
 	public static final GameEngine ge = GameEngine.getInstance();
 	
+	/**
+	 * Construtor da classe GameElement
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 */
+	
 	public GameElement(String name, Point2D position, int layerValue) {
 		this.name = name;
 		this.position = position;
 		this.layerValue = layerValue;
 	}
 	
+	/**
+	 * Método fábrica
+	 * 
+	 * @param name String
+	 * @param position Point2D
+	 * @return obj ImageTile
+	 */
 	
 	public static ImageTile create(String name, Point2D position) {
 		ImageTile obj = null;
@@ -81,9 +104,7 @@ public abstract class GameElement implements ImageTile {
 			default:
 				throw new IllegalArgumentException("Erro a criar ImageTile");
 		}
-
-		return obj;
-				
+		return obj;			
 	}
 
 	@Override
@@ -101,20 +122,6 @@ public abstract class GameElement implements ImageTile {
 	
 	public void setPosition(Point2D position) {
 		this.position = position;		
-	}
-	
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;	
-		if(this.getClass() != obj.getClass())
-			return false;
-
-		GameElement other = (GameElement) obj;
-		return this.getName().equals(other.getName()) && this.getPosition().equals(obj);
 	}
 	
 	
@@ -154,14 +161,6 @@ public abstract class GameElement implements ImageTile {
 		return null;
 		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	

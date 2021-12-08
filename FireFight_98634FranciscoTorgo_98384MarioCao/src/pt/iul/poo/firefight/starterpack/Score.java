@@ -5,6 +5,15 @@ import java.util.*;
 
 import pt.iul.ista.poo.gui.ImageTile;
 
+/**
+* <h1>Score</h1>
+* Implementação da classe Score
+* 
+* @author Mario Cao-N98384
+* @author Francisco Torgo-N98634
+* @since 2021-11-01
+*/
+
 public class Score{
 	
 	public static final int ABIES_VALUE = Scoreboard.ABIES.getValue();
@@ -15,6 +24,8 @@ public class Score{
 	public static final String SCORE_DIR = "score/";
 	public static final String SCORE_FILE_NAME = "scores.txt";
 	public static final String TOP_5_SCORE_FILE_NAME = "top5_level";
+	public static final double MULTIPLIER = 5;
+	
 	
 	public static GameEngine ge = GameEngine.getInstance();
 	
@@ -22,9 +33,8 @@ public class Score{
 	private int levelNumber;
 	private String playerName;
 	
-	private double multiplier = 5;
 	
-	
+	//Comparador de scores
 	public static class ScoreComparator implements Comparator<Score>{
 		@Override
 		public int compare(Score s1, Score s2) {
@@ -40,7 +50,7 @@ public class Score{
 	
 	}
 	
-
+	
 	public Score() {
 		this.scoreValue = 0;
 	}
@@ -81,7 +91,7 @@ public class Score{
 			sc.close();
 			
 		} catch (FileNotFoundException e) {
-			System.err.println("Ficheiro " + ficheiro + " não encontrado");
+			System.err.println("Ficheiro " + ficheiro + " não encontrado ou inicializado");
 		}
 		allScores.removeIf(e -> !e.getPlayerName().equals(name) || e.getLevelNumber() != level);
 		Score score = null;
@@ -162,13 +172,13 @@ public class Score{
 	//Dá pontos de acordo com o tipo de burnable apagada
 	public void givePoints(ImageTile image) {
 		if(image instanceof Pine) {
-			scoreValue += multiplier * PINE_VALUE;
+			scoreValue += MULTIPLIER * PINE_VALUE;
 		}else if(image instanceof Eucaliptus) {
-			scoreValue += multiplier * EUCALIPTUS_VALUE;	
+			scoreValue += MULTIPLIER * EUCALIPTUS_VALUE;	
 		}else if(image instanceof Grass) {
-			scoreValue += multiplier * GRASS_VALUE;
+			scoreValue += MULTIPLIER * GRASS_VALUE;
 		}else if(image instanceof Abies) {
-			scoreValue += multiplier * ABIES_VALUE;
+			scoreValue += MULTIPLIER * ABIES_VALUE;
 		}
 	}
 	

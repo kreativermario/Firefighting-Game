@@ -10,9 +10,5 @@ eeeebem__m
 eeeeeeee__
 Fireman 4 4
 Fire 0 0
-Fire 1 0
 Fire 9 0
 Fire 0 9
-Bulldozer 3 3
-FireTruck 3 4
-FiremanBot 5 4

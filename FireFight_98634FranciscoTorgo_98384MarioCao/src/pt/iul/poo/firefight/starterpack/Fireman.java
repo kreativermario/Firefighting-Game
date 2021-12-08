@@ -3,56 +3,65 @@ package pt.iul.poo.firefight.starterpack;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
 
-// Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-// Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
-// Isso sera' de evitar na versao a serio do projeto
 
 /**
 * <h1>Fireman</h1>
-* Implementação da classe Fireman
-* Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-* Tem atributos e metodos repetidos em relacao ao que está definido noutras classes
+* Implementação da classe Fireman que extende Person
 * 
 * @author Mario Cao-N98384
-* @author Francisco Trogo-N98634
+* @author Francisco Torgo-N98634
 * @since 2021-11-01
 */
 
-public class Fireman extends GameElement implements Movable, ActiveElement, Directionable{
-	//TODO Remover bulldozer
-	private boolean isActive;
-	private Direction dir;
+public class Fireman extends Person{
+
 	
 	/**
-	* Construtor Fireman
+	* Construtor da classe Fireman
+	* @param name String
+	* @param position Point2D
+	* @param layerValue integer
 	*/
+	
 	public Fireman(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
-		this.isActive = true;
-		this.dir = null;
 	}
 	
 	/**
-	* Construtor Fireman com atribuição de Active
-	*/
+	 * Contrutor da classe Fireman, com valor lógico de isActive
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 * @param isActive boolean
+	 */
+	
 	public Fireman(String name, Point2D position, int layerValue, boolean isActive) {
-		super(name, position, layerValue);
-		this.isActive = isActive;
-		this.dir = null;
+		super(name, position, layerValue, isActive);
 	}
 	
+	/**
+	 * Contrutor da classe Fireman, com valor lógico de isActive e direção
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 * @param isActive boolean
+	 * @param direction Direction
+	 */
+	
 	public Fireman(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
-		super(name, position, layerValue);
-		this.isActive = isActive;
-		this.dir = direction;
+		super(name, position, layerValue, isActive, direction);
 	}
 	
 
+	/**
+	 * ToString Fireman
+	 * @return "fireman" String
+	 */
 	
 	@Override
 	public String getName() {
-		if(dir != null) {
-			switch(this.dir) {
+		if(super.getDirection() != null) {
+			switch(super.getDirection()) {
 				case LEFT:
 					return "fireman_left";
 				case RIGHT:
@@ -64,55 +73,62 @@ public class Fireman extends GameElement implements Movable, ActiveElement, Dire
 		return "fireman";
 	}
 	
+	/**
+	* Este método é usado para mover um objeto na interface grafica, neste caso Fireman
+	* @param keyCode integer traducao codigo para tela.
+	*/
+	
 	// Move numa direcao
 	public void move(int keyCode) {
 		
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
-		GameEngine ge = GameEngine.getInstance();
 		
 		//Se houver fogo limpa
 		if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
 			
 			Fire.cleanFire(newPosition, direction);	
-			
+		
+		//Se poder mover para a nova posição
 		}else if (canMoveTo(newPosition)){
 			
-			this.setDirection(direction);
-			setPosition(newPosition);
+			super.setDirection(direction);
+			super.setPosition(newPosition);
+			
 			Fire.propagateFire(newPosition);
 			Fire.addBurnTime(newPosition);
 			
-			//Se houver Bulldozer, ou seja, fireman vai entrar no Bulldozer
-			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Drivable && e instanceof ActiveElement)) {
+			//Se houver Vehicle, ou seja, fireman vai entrar no veiculo
+			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Vehicle)) {
 				
-				ge.removeImage(this);  //Retira o fireman do GUI mas nao do tileList
+				getInto(newPosition);
 				
-				this.setActive(false);	//Coloca o fireman a inativo
-				
-				((ActiveElement) ge.getObjectAtPosition(newPosition, e -> e instanceof Drivable)).setActive(true);		//Coloca o Drivable a ativo
 			}
 				
 		}
 	
 	}
 	
+	/**
+	 * Este método é usado para introduzir o Fireman em elementos Drivable
+	 * @param newPosition Point2D
+	 */
 	
-
-	// Verifica se a posicao p esta' dentro da grelha de jogo
-	public boolean canMoveTo(Point2D p) {
+	private void getInto(Point2D newPosition) {
 		
-		if (p.getX() < 0) return false;
-		if (p.getY() < 0) return false;
-		if (p.getX() >= GameEngine.GRID_WIDTH) return false;
-		if (p.getY() >= GameEngine.GRID_HEIGHT) return false;
-		return true;
+		ge.removeImage(this);  //Retira o fireman do GUI mas nao do tileList
+		
+		super.setActive(false);	//Coloca o fireman a inativo
+		
+		((ActiveElement) ge.getObjectAtPosition(newPosition, e -> e instanceof Vehicle)).setActive(true);		//Coloca o Drivable a ativo	
+		
+		
 	}
-	
-	public void setPosition(Point2D position) {
-		 super.setPosition(position);
-	}
-	
+		
+	/**
+	 * ToString Fireman
+	 * @return "Fireman" String
+	 */
 	
 	//TODO Debug
 	@Override
@@ -120,24 +136,4 @@ public class Fireman extends GameElement implements Movable, ActiveElement, Dire
 		return "Fireman";	
 	}
 
-
-
-	@Override
-	public boolean isActive() {
-		return isActive;
-	}
-
-
-	@Override
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
-	}
-	
-	@Override
-	public void setDirection(Direction direction) {
-		this.dir = direction;
-	}
-	
-
-	
 }

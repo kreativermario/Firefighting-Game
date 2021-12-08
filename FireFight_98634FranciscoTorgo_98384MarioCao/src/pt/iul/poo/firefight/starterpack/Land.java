@@ -2,9 +2,14 @@ package pt.iul.poo.firefight.starterpack;
 
 import pt.iul.ista.poo.utils.Point2D;
 
-//Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-//Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
-//Isso sera' de evitar na versao a serio do projeto
+/**
+* <h1>Land</h1>
+* Implementação da classe Land extende GameElement
+* 
+* @author Mario Cao-N98384
+* @author Francisco Torgo-N98634
+* @since 2021-11-01
+*/
 
 public class Land extends GameElement {
 

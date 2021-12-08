@@ -5,47 +5,53 @@ import java.util.List;
 import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
-import pt.iul.ista.poo.utils.Vector2D;
 
-// Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-// Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
-// Isso sera' de evitar na versao a serio do projeto
 
 /**
-* <h1>Fireman</h1>
-* Implementação da classe Fireman
-* Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-* Tem atributos e metodos repetidos em relacao ao que está definido noutras classes
+* <h1>FiremanBot</h1>
+* Implementação da classe FiremanBot
 * 
 * @author Mario Cao-N98384
-* @author Francisco Trogo-N98634
+* @author Francisco Torgo-N98634
 * @since 2021-11-01
 */
 
-public class FiremanBot extends GameElement implements Directionable{
+public class FiremanBot extends Person{
 
-	private Direction dir;
-	
 	/**
-	* Construtor FiremanBot
-	*/
+	 * Contrutor da classe FiremanBot
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 */
+	
 	public FiremanBot(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
-		this.dir = null;
 	}
 	
+	/**
+	 * Contrutor da classe FiremanBot, com direção
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 * @param direction Direction
+	 */
 	
-	public FiremanBot(String name, Point2D position, int layerValue, Direction direction) {
-		super(name, position, layerValue);
-		this.dir = direction;
+	public FiremanBot(String name, Point2D position, int layerValue, boolean isActive , Direction direction) {
+		super(name, position, layerValue, isActive, direction);
 	}
 	
-
+	/**
+	 * Getter getName FiremanBot
+	 * @return "firemanbot" String,
+	 * 		   "firemanbot_left" String,
+	 * 		   "firemanbot_right" String
+	 */
 	
 	@Override
 	public String getName() {
-		if(dir != null) {
-			switch(this.dir) {
+		if(super.getDirection() != null) {
+			switch(super.getDirection()) {
 				case LEFT:
 					return "firemanbot_left";
 				case RIGHT:
@@ -57,14 +63,17 @@ public class FiremanBot extends GameElement implements Directionable{
 		return "firemanbot";
 	}
 	
-	// Move numa direcao
-	public void move() {
+	/**
+	* Este metodo é usado para mover um objeto na interface grafica, neste caso, de forma automatica o FiremanBot
+	* @param keyCode integer traducao codigo para tela
+	*/
+	
+	public void move(int key) {
 			
-		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Fire);
+		List<ImageTile> fires = ge.selectObjectsList(e -> e instanceof Fire);			//Array com a lista de fogos
 		
-		
-		if(!fires.isEmpty()) {
-			double minDistance = 0;
+		if(!fires.isEmpty()) {										//Se houver fogos, procura o fogo mais próximo e vai andando até ele
+			double minDistance = 0;		
 			Point2D minPos = null;
 			
 			for(int i = 0; i < fires.size(); i++) {
@@ -77,16 +86,12 @@ public class FiremanBot extends GameElement implements Directionable{
 				if(distance <= minDistance) {
 					minDistance = distance;
 					minPos = firePos;
-				}
-					
-				
+				}	
 			}
-			
 			
 			Direction direction = this.getPosition().directionTo(minPos);
 			
 			Point2D newPosition = super.getPosition().plus(direction.asVector());
-			GameEngine ge = GameEngine.getInstance();
 			
 			//Se houver fogo limpa
 			if(ge.isThereObjectAtPosition(newPosition, e -> e instanceof Fire) ) {
@@ -95,49 +100,39 @@ public class FiremanBot extends GameElement implements Directionable{
 				
 			}else if (canMoveTo(newPosition)){
 				
-				this.setDirection(direction);
-				setPosition(newPosition);
-
+				super.setDirection(direction);
+				super.setPosition(newPosition);
 			}
-			
-		
-			
 		}
-		
-	
-	
 	}
 	
+	/**
+	 * Este método é usado par verificar se o FiremanBot esta dentro da grelha de jogo e entre outros
+	 * @param p Point2D
+	 * @return boolean
+	 */
 	
-
-	// Verifica se a posicao p esta' dentro da grelha de jogo
+	@Override
 	public boolean canMoveTo(Point2D p) {
 		
 		if (p.getX() < 0) return false;
 		if (p.getY() < 0) return false;
 		if (p.getX() >= GameEngine.GRID_WIDTH) return false;
 		if (p.getY() >= GameEngine.GRID_HEIGHT) return false;
-		if (ge.isThereObjectAtPosition(p, e -> e instanceof Fireman || e instanceof Bulldozer)) return false;
+		if (ge.isThereObjectAtPosition(p, e -> e instanceof Person 
+				|| e instanceof Vehicle)) return false;		//Nao deixar o firemanbot ir para uma posicao com um veiculo ou pessoa (Fireman ou FiremanBot)
 		return true;
 	}
 	
-	public void setPosition(Point2D position) {
-		 super.setPosition(position);
-	}
-	
+	/**
+	 * ToString FiremanBot
+	 * @return "FiremanBot" String
+	 */
 	
 	//TODO Debug
 	@Override
 	public String toString() {
-		return "Fireman";	
+		return "FiremanBot";	
 	}
 
-	
-	@Override
-	public void setDirection(Direction direction) {
-		this.dir = direction;
-	}
-	
-
-	
 }

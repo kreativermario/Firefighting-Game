@@ -3,69 +3,86 @@ package pt.iul.poo.firefight.starterpack;
 import java.util.Iterator;
 import java.util.List;
 
-import pt.iul.ista.poo.gui.ImageTile;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
 
 // Isso sera' de evitar na versao a serio do projeto
 
 /**
-* <h1>Bulldozer</h1>
-* Implementação da classe Bulldozer
-* Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-* Tem atributos e metodos repetidos em relacao ao que está definido noutras classes
+* <h1>FireTruck</h1>
+* Implementação da classe FireTruck extende Vehicle
 * 
 * @author Mario Cao-N98384
-* @author Francisco Trogo-N98634
+* @author Francisco Torgo-N98634
 * @since 2021-11-01
 */
 
-public class FireTruck extends GameElement implements Movable, ActiveElement, Directionable, Drivable{
+public class FireTruck extends Vehicle{
 	
-	private static final GameEngine ge = GameEngine.getInstance();
-	private boolean isActive;
-	private Direction dir;
-	
+	/**
+	 * Contrutor da classe FireTruck
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 */
 	
 	public FireTruck(String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);
-		isActive = false;
-		this.dir = null;
 	}
 	
+	/**
+	 * Contrutor da classe FireTruck, com valor lógico de isActive
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 * @param isActive boolean
+	 */
+
+	public FireTruck(String name, Point2D position, int layerValue, boolean isActive) {
+		super(name, position, layerValue, isActive);
+	}
+	
+	/**
+	 * Contrutor da classe FireTruck, com valor lógico de isActive e direção
+	 * @param name String
+	 * @param position Point2D
+	 * @param layerValue integer
+	 * @param isActive boolean
+	 * @param direction Direction
+	 */
 	
 	public FireTruck(String name, Point2D position, int layerValue, boolean isActive, Direction direction) {
-		super(name, position, layerValue);
-		this.isActive = isActive;
-		this.dir = direction;
+		super(name, position, layerValue, isActive, direction);
 	}
 	
-	public FireTruck(String name, Point2D position, int layerValue, boolean isActive) {
-		super(name, position, layerValue);
-		this.isActive = isActive;
-		this.dir = null;
-	}
-	
+	/**
+	 * Getter getName
+	 * @return "firetruck" String,
+	 * "firetruck_left" String,
+	 * "firetruck_right" String
+	 */
 	@Override
 	public String getName() {
-		if(this.dir != null) {
-			switch(this.dir) {
+		if(super.getDirection() != null) {
+			switch(super.getDirection()) {
 				case LEFT:
 					return "firetruck_left";
 				case RIGHT:
 					return "firetruck_right";
+			default:
+				break;
 			}	
 		}
 		return "firetruck";		
 	}
 	
-
 	/**
-	* Este metodo é usado para mover um objeto na interface grafica, neste caso Bulldozer
-	* @param keyCode traducao codigo para tela.
+	* Este metodo é usado para mover um objeto na interface grafica, neste caso FireTruck
+	* @param keyCode integer traducao codigo para tela.
 	*/
 	
 	// Move numa direcao
+	@Override
 	public void move(int keyCode) {
 		Direction direction = Direction.directionFor(keyCode);
 		Point2D newPosition = super.getPosition().plus(direction.asVector());
@@ -73,21 +90,26 @@ public class FireTruck extends GameElement implements Movable, ActiveElement, Di
 		if(canMoveTo(newPosition) ) {
 			
 			//Atualizar a direction do Bulldozer
-			this.setDirection(direction);
+			super.setDirection(direction);
 			
-			cleanFire(direction, newPosition);
+			cleanFireRectangle(direction, newPosition);
+			
 			ge.getFireman().setPosition(newPosition);
-			setPosition(newPosition);
+			super.setPosition(newPosition);
 			
 			Fire.propagateFire(newPosition);
 			Fire.addBurnTime(newPosition);
 		}
-	
 	}
 	
+	/**
+	 * Este método é usado para limpar o fogo na direção indicada, Firetruck 2x3
+	 * @param direction
+	 * @param position
+	 */
 	
 	//TODO como assim perpendicular ao movimento?
-	private void cleanFire(Direction direction, Point2D position) {
+	private void cleanFireRectangle(Direction direction, Point2D position) {
 		List<Point2D> fires = position.getFrontRect(direction, 3, 2);
 		
 		Iterator<Point2D> it = fires.iterator();
@@ -95,62 +117,17 @@ public class FireTruck extends GameElement implements Movable, ActiveElement, Di
 			Point2D setPos = it.next();
 			Fire.cleanFire(setPos, direction);
 		}
-
-		
 	}
 
 	/**
-	* Este metodo é usado para verificar se uma posicao esta dentro da grelha de jogo
-	* @param p Point2D.
-	*/
-
-	// Verifica se a posicao p esta' dentro da grelha de jogo
-	public boolean canMoveTo(Point2D p) {
-		
-		if (p.getX() < 0) return false;
-		if (p.getY() < 0) return false;
-		if (p.getX() >= GameEngine.GRID_WIDTH) return false;
-		if (p.getY() >= GameEngine.GRID_HEIGHT) return false;
-		if(ge.isThereObjectAtPosition(p, e -> e instanceof Fire)) return false;
-		if(ge.isThereObjectAtPosition(p, e -> e instanceof Drivable)) return false;
-		return true;
-	}
-	
-	/**
-	* Setter da posicao
-	* @param position Point2D.
-	*/
-	
-	public void setPosition(Point2D position) {
-		 super.setPosition(position);
-	}
-		
+	 * ToString FireTruck
+	 * @return "FireTruck" String
+	 */
 	
 	//TODO Debug
 	@Override
 	public String toString() {
-		return "Bulldozer";	
+		return "FireTruck";	
 	}
 
-	@Override
-	public boolean isActive() {
-		return isActive;
-	}
-
-	@Override
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
-	}
-
-	@Override
-	public void setDirection(Direction direction) {
-		this.dir = direction;
-	}
-	
-	
-	
-	
-	
-	
-	
 }

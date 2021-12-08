@@ -2,17 +2,22 @@ package pt.iul.poo.firefight.starterpack;
 
 import pt.iul.ista.poo.utils.Point2D;
 
-//Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-//Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
-//Isso sera' de evitar na versao a serio do projeto
+/**
+* <h1>Grass</h1>
+* Implementação da classe Grass implementa Burnable, Updatable
+* 
+* @author Mario Cao-N98384
+* @author Francisco Torgo-N98634
+* @since 2021-11-01
+*/
 
 public class Grass extends GameElement implements Burnable, Updatable{
 	
-	public final double probability = 0.15;
+	public final double probability = Probability.GRASS.getProbability();
 	public final int INITIAL_BURN_TIME = 3;
 	public final String BURNT_NAME = "burntgrass";
-	public int burnTime;
-	public boolean isBurnt;
+	private int burnTime;
+	private boolean isBurnt;
 	
 	public Grass( String name, Point2D position, int layerValue) {
 		super(name, position, layerValue);

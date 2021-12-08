@@ -1,16 +1,22 @@
 package pt.iul.poo.firefight.starterpack;
 
+/**
+* <h1>Main</h1>
+* Implementação da classe Main
+* Classe de execução do programa
+* 
+* @author Mario Cao-N98384
+* @author Francisco Torgo-N98634
+* @since 2021-11-01
+*/
 
 public class Main {
 	public static void main(String[] args) {
 		
-		// Cria uma instancia de GameEngine e depois inicia o jogo
-		// Podera' vir a ficar diferente caso defina GameEngine como solitao
 		
 		GameEngine game = GameEngine.getInstance();
 		game.start();
-		//Terminar o jogo
-		if(game.isGameOver()) game = null;
+		
 		
 	
 

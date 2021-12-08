@@ -3,24 +3,17 @@ package pt.iul.poo.firefight.starterpack;
 import pt.iul.ista.poo.utils.Direction;
 import pt.iul.ista.poo.utils.Point2D;
 
-// Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-// Tem atributos e metodos repetidos em relacao ao que está definido noutras classes 
-// Isso sera' de evitar na versao a serio do projeto
-
 /**
 * <h1>Plane</h1>
 * Implementação da classe Plane
-* Esta classe de exemplo esta' definida de forma muito basica, sem relacoes de heranca
-* Tem atributos e metodos repetidos em relacao ao que está definido noutras classes
 * 
 * @author Mario Cao-N98384
-* @author Francisco Trogo-N98634
+* @author Francisco Torgo-N98634
 * @since 2021-11-01
 */
 
-public class Plane extends GameElement implements ActiveElement{
+public class Plane extends GameElement implements Movable, ActiveElement{
 	
-	private static GameEngine ge = GameEngine.getInstance();	
 	private boolean isActive;
 	
 	/**
@@ -43,18 +36,18 @@ public class Plane extends GameElement implements ActiveElement{
 	
 	
 	// Move numa direcao
-	public void move() {
-		Direction UP = Direction.UP;
+	public void move(int key) {
+		Direction dir = Direction.directionFor(key);
 		
 		for(int i = 0; i <= 2; i++) {
 			
-			Point2D newPosition = super.getPosition().plus(UP.asVector());
+			Point2D newPosition = super.getPosition().plus(dir.asVector());
 			Point2D botPosition = super.getPosition().plus(Direction.DOWN.asVector());
 			
 			if(canMoveTo(newPosition)) {
 				
-				Fire.cleanFire(newPosition, UP);
-				Fire.cleanFire(botPosition, UP);	
+				Fire.cleanFire(newPosition, dir);
+				Fire.cleanFire(botPosition, dir);	
 				
 				setPosition(newPosition);
 				
