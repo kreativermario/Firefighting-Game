@@ -6,3 +6,7 @@ The project consists in a simple game where the player controls a firefighter an
 The objective of the player is to get the highest score possible (which is obtained for each fire extinguished) and pass all the levels without dying. 
 The fires have a random chance to spread to the neighbor squares. There are different sprites (terrain, trees types, some that are burnable and others that are not).
 This project was essencial to learn the basics of object oriented programming.
+
+## Group Members
+- Mário Cao - [GitHub](https://github.com/kreativermario/)
+- Francisco Torgo - [GitHub](https://github.com/TRODSft)
