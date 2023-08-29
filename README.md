@@ -1,31 +1,8 @@
-# Programação Orientada para Objetos - Projeto
+# Firefighting Game
+This is a group project for university, more specifically for the subject Objected Oriented Programming at ISCTE-IUL.
 
-## To-do List
-- [X] Load do mapa
-- [X] Interação bombeiro e fogo
-- [X] Propagação do fogo
-- [X] Colocar o gif da agua de acordo com a direção 
-- [ ] Criar um enumerado com os tipos todos de classes?
-- [ ] Verificar tudo de novo com calma
-- [ ] Verificar funcoes de ver se elementos já existem
-- [ ] Distribuir as funções pelas classes todas. Não ter tudo no GameEngine
-
-
-
-## Changelog
-### Features
-### Version v1.0.0 Alkaline (17-11-2021)
-- Movimento simples do bombeiro
-- Load do mapa
-
-### Version v1.0.1 Noble (18-11-2021)
-- Adicionado, interação bombeiro com fogo
-- Bombeiro nao mexe para dentro do fogo mas apaga-o
-- Proxima jogada, a agua desaparece
-
-### Version v1.0.2 Kamikaze (24-11-2021)
-- Propagação de fogo
-- Novas funções auxiliares no GameEngine
-- Status bar com count dos fogos
-- GameOver
-- Nova ArrayList com os fogos
+## Description
+The project consists in a simple game where the player controls a firefighter and has to extinguish fires that are initialized via a maps folder (levels, each level has a specific terrain configuration and props).
+The objective of the player is to get the highest score possible (which is obtained for each fire extinguished) and pass all the levels without dying. 
+The fires have a random chance to spread to the neighbor squares. There are different sprites (terrain, trees types, some that are burnable and others that are not).
+This project was essencial to learn the basics of object oriented programming.
